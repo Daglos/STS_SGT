@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 
-const {obtenerRoles} = require('../controllers/rolesController')
+const {obtenerRols} = require('../controllers/rolController')
 
 
 router.get('/', (req, res) => {
@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 })
 
 
-router.get('/obtenerRoles',obtenerRoles)
+router.get('/obtenerRols',obtenerRols)
 
 
 module.exports = router

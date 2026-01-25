@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 require('dotenv').config()
 const port = process.env.PORT 
-const rolesRoute = require('./routes/rolesRoute')
+const rolRoute = require('./routes/rolRoute')
 const userRoute = require('./routes/userRoute')
 const taskRoute = require('./routes/taskRoute')
 
@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
   res.send('Hellor World!')
 })
 
-app.use('/roles',rolesRoute)
+app.use('/rol',rolRoute)
 app.use('/user',userRoute)
 app.use('/task',taskRoute)
 

@@ -25,7 +25,49 @@ const obtenerTasks = async (req, res) => {
     }
 }
 
+const crearTask = async (req, res) => {
+    try {
+        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {}
+
+        //  Validación básica
+        if (!idEmpleado || idJefe === undefined || !titulo || !descripcion || !fechaLimite) {
+            return res.status(400).json({
+                success: false,
+                error: 'Faltan campos requeridos'
+            })
+        }
+
+        const newTask = {
+            idEmpleado,
+            idJefe,
+            titulo,
+            descripcion,
+            fechaLimite
+        }
+        
+        const docRef = await db.collection('tareas').add(newTask)
+
+        //  Devolver el ID de la terea creada
+        res.status(201).json({
+                success: true,
+                message: 'Tarea agregada exitosamente',
+                data: {
+                    id: docRef.id,
+                    ...newTask
+                }
+            })
+        }
+    catch (error) {
+            console.error('Error al agregar la tarea:', error)  //  Log del error
+            res.status(500).json({
+                success: false,
+                error: error.message
+            })
+        }
+    }
+
 
 module.exports = {
-    obtenerTasks
-}
+        obtenerTasks,
+        crearTask
+    }

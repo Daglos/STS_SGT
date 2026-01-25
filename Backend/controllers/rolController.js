@@ -1,6 +1,6 @@
 const { db } = require('../config/firebase')
 
-const obtenerRoles = async (req, res) => {
+const obtenerRols = async (req, res) => {
     try {
         const rolesSnapshot = await db.collection('roles').get()
         console.log(rolesSnapshot)
@@ -27,5 +27,5 @@ const obtenerRoles = async (req, res) => {
 
 
 module.exports = {
-    obtenerRoles
+    obtenerRols
 }
