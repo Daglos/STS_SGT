@@ -27,22 +27,22 @@ const obtenerUser = async (req, res) => {
 
 const crearUser = async (req, res) => {
  try {
-        const { correo, contrasena, nombre, apellido, idRol } = req.body
+        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
         
-        /*  Validación básica
+        //  Validación básica
         if (!nombre || apellido === undefined || !contrasena || !correo || idRol) {
             return res.status(400).json({ 
                 success: false, 
                 error: 'Faltan campos requeridos' 
             })
-        }*/
+        }
         
         const newUser = {
             correo,
             contrasena,
             nombre,
             apellido,
-            idRol
+            idRol 
         }
         
         const docRef = await db.collection('usuarios').add(newUser)
