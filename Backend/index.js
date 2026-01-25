@@ -3,6 +3,8 @@ const app = express()
 require('dotenv').config()
 const port = process.env.PORT 
 const rolesRoute = require('./routes/rolesRoute')
+const userRoute = require('./routes/userRoute')
+const taskRoute = require('./routes/taskRoute')
 
 
 app.use(express.json())
@@ -12,6 +14,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/roles',rolesRoute)
+app.use('/user',userRoute)
+app.use('/task',taskRoute)
 
 
 app.listen(port, () => {
