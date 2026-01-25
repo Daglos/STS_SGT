@@ -86,8 +86,86 @@ const crearTask = async (req, res) => {
     }
 }
 
+const actualizarTask = async (req, res) => {
+    //     try {
+    //         // id existente
+    //     const taskIdTest = "Bj4sc1huaXob4KziNrpq";
+
+    //     // prueba
+    //     const updateSample = {
+    //         titulo: "Título actualizado desde backend (test)",
+    //         descripcion: "Actualizado desde backend sin foraneas",
+    //         fechaLimite: new Date().toISOString()
+    //     };
+
+    //     const taskRef = db.collection('tareas').doc(taskIdTest);
+    //     await taskRef.update(updateSample);
+
+    //     res.status(200).json({
+    //         success: true,
+    //         message: "Tarea actualizada desde backend (test)",
+    //         data: { id: taskIdTest, ...updateSample }
+    //     });
+
+    // } catch (error) {
+    //     console.error("Error al actualizar la tarea:", error);
+    //     res.status(500).json({
+    //         success: false,
+    //         error: error.message
+    //     });
+    // }
+
+
+    try {
+        const { id } = req.params;
+        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {};
+
+        // Validar que se envió ID
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: "falta el ID de la tarea"
+            });
+        }
+
+        // Construir objeto con los campos que fueron enviados
+        const updatedData = {};
+
+        if (idEmpleado !== undefined) updatedData.idEmpleado = idEmpleado;
+        if (idJefe !== undefined) updatedData.idJefe = idJefe;
+        if (titulo !== undefined) updatedData.titulo = titulo;
+        if (descripcion !== undefined) updatedData.descripcion = descripcion;
+        if (fechaLimite !== undefined) updatedData.fechaLimite = fechaLimite;
+
+        // Verificar que haya un campo para actualizar
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No se enviaron datos para actualizar"
+            });
+        }
+
+        const taskRef = db.collection('tareas').doc(id);
+        await taskRef.update(updatedData);
+
+        res.status(200).json({
+            success: true,
+            message: 'Tarea actualizada correctamente',
+            data: { id, ...updatedData }
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar la tarea:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
 
 module.exports = {
     obtenerTasks,
-    crearTask
+    crearTask,
+    actualizarTask
 }

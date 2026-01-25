@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 
-const {obtenerTasks, crearTask} = require('../controllers/taskController')
+const {obtenerTasks, crearTask, actualizarTask} = require('../controllers/taskController')
 
 
 router.get('/', (req, res) => {
@@ -13,6 +13,8 @@ router.get('/', (req, res) => {
 router.get('/obtenerTasks',obtenerTasks)
 
 router.post('/crearTask',crearTask)
+
+router.put('/actualizarTask',actualizarTask)
 
 
 module.exports = router
