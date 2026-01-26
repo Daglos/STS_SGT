@@ -88,7 +88,7 @@ try {
         if (contrasena !== undefined) updatedData.contrasena = contrasena;
         if (nombre !== undefined) updatedData.nombre = nombre;
         if (apellido !== undefined) updatedData.apellido = apellido;
-        if (idRol!== undefined) updatedData.idRol = idRol;
+        if (idRol !== undefined) updatedData.idRol = idRol;
 
         // Verificar que haya un campo para actualizar
         if (Object.keys(updatedData).length === 0) {
@@ -107,7 +107,51 @@ try {
             data: { id, ...updatedData }
         });
 
-    } catch (error) { 
+    } catch (error) {
+        console.error('Error al actualizar el usuario:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+const actualizarState = async (req, res) => {
+try {
+        const { id } = req.params;
+        const { estado } = req.body || {};
+
+        // Validar que se envió ID
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: "falta el ID del usuario"
+            });
+        }
+
+        // Construir objeto con los campos que fueron enviados
+        const updatedData = {};
+
+        if (estado !== undefined) updatedData.estado = estado;
+
+        // Verificar que haya un campo para actualizar
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No se enviaron datos para actualizar"
+            });
+        }
+
+        const userRef = db.collection('usuarios').doc(id);
+        await userRef.update(updatedData);
+
+        res.status(200).json({
+            success: true,
+            message: 'Usuario actualizado correctamente',
+            data: { id, ...updatedData }
+        });
+
+    } catch (error) {
         console.error('Error al actualizar el usuario:', error);
         res.status(500).json({
             success: false,
@@ -124,5 +168,6 @@ try {
 module.exports = {
     obtenerUser,
     crearUser,
-    actualizarUser
+    actualizarUser,
+    actualizarState
 }
