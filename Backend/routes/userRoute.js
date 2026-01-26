@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 
 
-const {obtenerUser, crearUser, actualizarUser} = require('../controllers/userController')
+const {obtenerUser, crearUser, actualizarUser, actualizarState} = require('../controllers/userController')
 
 
 router.get('/', (req, res) => {
@@ -13,6 +13,6 @@ router.get('/', (req, res) => {
 router.get('/obtenerUsers',obtenerUser)
 router.post('/crearUsers',crearUser)
 router.put('/actualizarUsers',actualizarUser)
-
+router.put('/actualizarState',actualizarState)
 
 module.exports = router

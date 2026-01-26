@@ -163,9 +163,83 @@ const actualizarTask = async (req, res) => {
     }
 }
 
+const actualizarState = async (req, res) => {
+    //     try {
+    //         // id existente
+    //     const taskIdTest = "Bj4sc1huaXob4KziNrpq";
+
+    //     // prueba
+    //     const updateSample = {
+    //         titulo: "Título actualizado desde backend (test)",
+    //         descripcion: "Actualizado desde backend sin foraneas",
+    //         fechaLimite: new Date().toISOString()
+    //     };
+
+    //     const taskRef = db.collection('tareas').doc(taskIdTest);
+    //     await taskRef.update(updateSample);
+
+    //     res.status(200).json({
+    //         success: true,
+    //         message: "Tarea actualizada desde backend (test)",
+    //         data: { id: taskIdTest, ...updateSample }
+    //     });
+
+    // } catch (error) {
+    //     console.error("Error al actualizar la tarea:", error);
+    //     res.status(500).json({
+    //         success: false,
+    //         error: error.message
+    //     });
+    // }
+
+
+    try {
+        const { id } = req.params;
+        const { estado} = req.body || {};
+
+        // Validar que se envió ID
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: "falta el ID del estado"
+            });
+        }
+
+        // Construir objeto con los campos que fueron enviados
+        const updatedData = {};
+
+        if (estado !== undefined) updatedData.estado = estado;
+
+        // Verificar que haya un campo para actualizar
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No se enviaron datos para actualizar"
+            });
+        }
+
+        const taskRef = db.collection('tareas').doc(id);
+        await taskRef.update(updatedData);
+
+        res.status(200).json({
+            success: true,
+            message: 'Estado actualizado correctamente',
+            data: { id, ...updatedData }
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar el estado:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
 
 module.exports = {
     obtenerTasks,
     crearTask,
-    actualizarTask
+    actualizarTask,
+    actualizarState
 }
