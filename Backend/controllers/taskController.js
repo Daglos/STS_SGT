@@ -86,6 +86,7 @@ const crearTask = async (req, res) => {
     }
 }
 
+// Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
 const actualizarTask = async (req, res) => {
     //     try {
     //         // id existente
@@ -118,7 +119,7 @@ const actualizarTask = async (req, res) => {
 
     try {
         const { id } = req.params;
-        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {};
+        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado } = req.body || {};
 
         // Validar que se envió ID
         if (!id) {
@@ -163,6 +164,7 @@ const actualizarTask = async (req, res) => {
     }
 }
 
+//Aqui falta cambiar estado
 
 module.exports = {
     obtenerTasks,

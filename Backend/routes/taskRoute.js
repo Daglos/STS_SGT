@@ -16,5 +16,6 @@ router.post('/crearTask',crearTask)
 
 router.put('/actualizarTask',actualizarTask)
 
+//Actualizar estado
 
 module.exports = router

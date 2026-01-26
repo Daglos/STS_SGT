@@ -25,6 +25,7 @@ const obtenerUser = async (req, res) => {
     }
 }
 
+// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
 const crearUser = async (req, res) => {
  try {
         const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
@@ -66,6 +67,7 @@ const crearUser = async (req, res) => {
     }
 }
 
+// Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
 const actualizarUser = async (req, res) => {
 try {
         const { id } = req.params;
@@ -86,7 +88,7 @@ try {
         if (contrasena !== undefined) updatedData.contrasena = contrasena;
         if (nombre !== undefined) updatedData.nombre = nombre;
         if (apellido !== undefined) updatedData.apellido = apellido;
-        if (idRol !== undefined) updatedData.idRol = idRol;
+        if (idRol!== undefined) updatedData.idRol = idRol;
 
         // Verificar que haya un campo para actualizar
         if (Object.keys(updatedData).length === 0) {
@@ -105,7 +107,7 @@ try {
             data: { id, ...updatedData }
         });
 
-    } catch (error) {
+    } catch (error) { 
         console.error('Error al actualizar el usuario:', error);
         res.status(500).json({
             success: false,
@@ -114,6 +116,7 @@ try {
     }
 }
 
+//Aqui falta cambiar estado
 
 
 
