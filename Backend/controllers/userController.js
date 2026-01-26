@@ -1,4 +1,4 @@
-const { db } = require('../config/firebase')
+const { db, auth } = require('../config/firebase')
 
 const obtenerUser = async (req, res) => {
     try {
@@ -26,30 +26,36 @@ const obtenerUser = async (req, res) => {
 }
 
 const crearUser = async (req, res) => {
- try {
+    try {
         const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
-        
+
         //  Validación básica
         if (!nombre || apellido === undefined || !contrasena || !correo || idRol) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Faltan campos requeridos' 
+            return res.status(400).json({
+                success: false,
+                error: 'Faltan campos requeridos'
             })
         }
-        
+
+        correo = correo.toLowerCase().trim();
+
+        const userCredential = await auth.createUserWithEmailAndPassword(correo, contrasena);
+
+        const uid = userCredential.user.uid;
+
         const newUser = {
             correo,
-            contrasena,
             nombre,
             apellido,
-            idRol 
+            idRol: "JN3KSuH83BfQrq314DHt",
+            uid
         }
-        
+
         const docRef = await db.collection('usuarios').add(newUser)
-        
+
         //  Devolver el ID del usuario creado
-        res.status(201).json({ 
-            success: true, 
+        res.status(201).json({
+            success: true,
             message: 'Usuario agregado exitosamente',
             data: {
                 id: docRef.id,
@@ -57,17 +63,17 @@ const crearUser = async (req, res) => {
             }
         })
     }
-    catch(error) {
+    catch (error) {
         console.error('Error al agregar usuario:', error)  //  Log del error
-        res.status(500).json({ 
-            success: false, 
-            error: error.message 
+        res.status(500).json({
+            success: false,
+            error: error.message
         })
     }
 }
 
 const actualizarUser = async (req, res) => {
-try {
+    try {
         const { id } = req.params;
         const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
 
@@ -96,8 +102,14 @@ try {
             });
         }
 
-        const userRef = db.collection('usuarios').doc(id);
-        await userRef.update(updatedData);
+        if (contrasena) {
+            await auth.updateUser(id, { password: contrasena });
+        }
+
+        if (Object.keys(updatedData).length > 0) {
+            const userRef = db.collection('usuarios').doc(id);
+            await userRef.update(updatedData);
+        }
 
         res.status(200).json({
             success: true,
