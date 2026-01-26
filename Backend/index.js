@@ -5,7 +5,7 @@ const port = process.env.PORT
 const rolRoute = require('./routes/rolRoute')
 const userRoute = require('./routes/userRoute')
 const taskRoute = require('./routes/taskRoute')
-const logginRoute = require('./routes/logginRoute')
+const logginRoute = require('./routes/loginRoute')
 
 app.use(express.json())
 
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 app.use('/rol',rolRoute)
 app.use('/user',userRoute)
 app.use('/task',taskRoute)
-app.use('/loggin',logginRoute)
+app.use('/login',logginRoute)
 
 
 app.listen(port, () => {

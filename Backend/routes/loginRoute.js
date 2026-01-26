@@ -2,13 +2,13 @@ const express = require('express')
 const router = express.Router()
 
 
-const {iniciarSesion} = require('../controllers/logginController')
+const {iniciarSesion} = require('../controllers/loginController')
 
 
 router.get('/', (req, res) => {
   res.send('Archivo sell funcionando' )
 })
 
-router.post('/loggin',iniciarSesion)
+router.post('/login',iniciarSesion)
 
 module.exports = router
