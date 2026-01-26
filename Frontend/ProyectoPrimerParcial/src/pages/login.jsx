@@ -1,14 +1,26 @@
 // src/pages/Login.jsx
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
+import { data } from '../data/data';
 
+const logIn=()=>{
+  return true
+}
 
 export const Login = () => {
+  useEffect(()=>{
+    console.log(data)
+  },[])
+
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = (e) => {
     e.preventDefault();
     console.log('Login:', { email, password });
+    if(logIn){
+      console.log("Inicio sesion")
+    }
 
   };
 
