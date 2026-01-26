@@ -1,6 +1,14 @@
 // src/pages/Login.jsx
 import { useState } from 'react';
 
+// se deberia usar import axios from "axios"; para crearel usuario
+
+//desde aqui se inicia sesion y se ocuparia 
+/*import { signInWithEmailAndPassword } from "firebase/auth";
+import axios from "axios";
+import { auth } from "../firebaseConfig";
+*/
+
 
 export const Login = () => {
   const [email, setEmail] = useState('');

@@ -1,4 +1,4 @@
-const { db, auth } = require('../config/firebase')
+const { db, auth, admin } = require('../config/firebase')
 
 const obtenerUser = async (req, res) => {
     try {
@@ -25,43 +25,47 @@ const obtenerUser = async (req, res) => {
     }
 }
 
-// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
+
+//desde frontend seria algo parecido a: createUserWithEmailAndPassword(auth, correo, password)
+
+
 const crearUser = async (req, res) => {
     try {
-        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
+        const { correo, contrasena, nombre, apellido, estado } = req.body || {};
 
         //  Validación básica
-        if (!nombre || apellido === undefined || !contrasena || !correo || idRol) {
+        if (!nombre || !apellido || !contrasena || !correo || !estado) {
             return res.status(400).json({
                 success: false,
                 error: 'Faltan campos requeridos'
             })
         }
 
-        correo = correo.toLowerCase().trim();
+        const correoNormalizado = correo.toLowerCase().trim()
 
-        const userCredential = await auth.createUserWithEmailAndPassword(correo, contrasena);
+        const userCredential = await admin.auth().createUser({
+            email: correoNormalizado,
+            password: contrasena
+        })
 
-        const uid = userCredential.user.uid;
+        const uid = userCredential.uid;
 
         const newUser = {
-            correo,
+            correo: correoNormalizado,
             nombre,
             apellido,
+            estado,
             idRol: "JN3KSuH83BfQrq314DHt",
             uid
         }
 
-        const docRef = await db.collection('usuarios').add(newUser)
+        const docRef = await db.collection('usuarios').doc(uid).set(newUser)
 
         //  Devolver el ID del usuario creado
         res.status(201).json({
             success: true,
             message: 'Usuario agregado exitosamente',
-            data: {
-                id: docRef.id,
-                ...newUser
-            }
+            data: newUser
         })
     }
     catch (error) {
@@ -77,7 +81,7 @@ const crearUser = async (req, res) => {
 const actualizarUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
+        const { correo, contrasena, nombre, apellido, estado, idRol } = req.body || {};
 
         // Validar que se envió ID
         if (!id) {
@@ -94,6 +98,7 @@ const actualizarUser = async (req, res) => {
         if (contrasena !== undefined) updatedData.contrasena = contrasena;
         if (nombre !== undefined) updatedData.nombre = nombre;
         if (apellido !== undefined) updatedData.apellido = apellido;
+        if (estado !== undefined) updatedData.estado = estado;
         if (idRol !== undefined) updatedData.idRol = idRol;
 
         // Verificar que haya un campo para actualizar
@@ -105,7 +110,7 @@ const actualizarUser = async (req, res) => {
         }
 
         if (contrasena) {
-            await auth.updateUser(id, { password: contrasena });
+            await admin.auth().updateUser(id, { password: contrasena });
         }
 
         if (Object.keys(updatedData).length > 0) {

@@ -1,35 +1,14 @@
-/* Aqui hacer "función" que reciba correo y contraseña desde el frontend y verificar que esos datos existen en la base
-y devolver true o el json con la informacion del usuario.
-
-Importante devolver el rol que tiene ese usuario idRol para verificar si es Empleado o Jefe
-
-*/
-
-const { db } = require('../config/firebase')
-
-const iniciarSesion = async () => {
-
-    const { correo, contrasena } = req.body || {}
-    //buscar esos datos que existan
+const express = require('express')
+const router = express.Router()
 
 
-    //deshashear la contraseña
-
-    let sesionIniciada = false
-    if (sesionIniciada) {
-
-        //Buscar con los datos deshasheados el registro usando el id
+const {iniciarSesion} = require('../controllers/logginController')
 
 
-        //Obtener el rol del usuario usando el id
-        res.status(200).json({
-            success: true,
-            rol: "Empleado o Jefe"
-        })
-    } else {
-        res.status(200).json({
-            success: false
-        })
-    }
+router.get('/', (req, res) => {
+  res.send('Archivo sell funcionando' )
+})
 
-}
+router.post('/loggin',iniciarSesion)
+
+module.exports = router
