@@ -6,7 +6,6 @@ const rolRoute = require('./routes/rolRoute')
 const userRoute = require('./routes/userRoute')
 const taskRoute = require('./routes/taskRoute')
 
-
 app.use(express.json())
 
 app.get('/', (req, res) => {

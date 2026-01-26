@@ -25,6 +25,7 @@ const obtenerUser = async (req, res) => {
     }
 }
 
+// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
 const crearUser = async (req, res) => {
     try {
         const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
@@ -72,6 +73,7 @@ const crearUser = async (req, res) => {
     }
 }
 
+// Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
 const actualizarUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -126,6 +128,51 @@ const actualizarUser = async (req, res) => {
     }
 }
 
+const actualizarState = async (req, res) => {
+try {
+        const { id } = req.params;
+        const { estado } = req.body || {};
+
+        // Validar que se envió ID
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                error: "falta el ID del usuario"
+            });
+        }
+
+        // Construir objeto con los campos que fueron enviados
+        const updatedData = {};
+
+        if (estado !== undefined) updatedData.estado = estado;
+
+        // Verificar que haya un campo para actualizar
+        if (Object.keys(updatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: "No se enviaron datos para actualizar"
+            });
+        }
+
+        const userRef = db.collection('usuarios').doc(id);
+        await userRef.update(updatedData);
+
+        res.status(200).json({
+            success: true,
+            message: 'Usuario actualizado correctamente',
+            data: { id, ...updatedData }
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar el usuario:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+}
+
+//Aqui falta cambiar estado
 
 
 
@@ -133,5 +180,6 @@ const actualizarUser = async (req, res) => {
 module.exports = {
     obtenerUser,
     crearUser,
-    actualizarUser
+    actualizarUser,
+    actualizarState
 }
