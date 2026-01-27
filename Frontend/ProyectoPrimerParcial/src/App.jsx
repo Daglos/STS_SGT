@@ -14,6 +14,9 @@ function App() {
         if (!usuario && !loading){
             navigate("/login")
         }
+        if (usuario){
+          navigate('/home')
+        }
     },[usuario,login,navigate])
   return (
     <Routes>
