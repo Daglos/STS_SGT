@@ -25,6 +25,42 @@ const obtenerTasks = async (req, res) => {
     }
 }
 
+// Usa query para para filtrar
+const obtenerTaskPorId = async (req, res) => {
+    try {
+        const { idUsuario } = req.query;
+
+        if (!idUsuario) {
+            return res.status(400).json({
+                success: false,
+                error: "Falta el ID del usuario"
+            });
+        }
+
+        // let idUsuario = "Bj4sc1huaXob4KziNrpq"; Este es solo de prueba 
+        const taskSnapshot = await db.collection('tareas').where('idEmpleado', '==', idUsuario).get();
+        const tasks = [];
+
+        taskSnapshot.forEach(doc => {
+            tasks.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        return res.json({
+            success: true,
+            data: tasks,
+            total: tasks.length
+        });
+
+    } catch (error) {
+        console.error('Error al obtener tareas:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+
 const crearTask = async (req, res) => {
     // try {
     //     const sampleTask = {
@@ -47,7 +83,7 @@ const crearTask = async (req, res) => {
     // }
 
     try {
-        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {}
+        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite} = req.body || {}
 
         //  Validación básica
         if (!idEmpleado || idJefe === undefined || !titulo || !descripcion || !fechaLimite) {
@@ -62,7 +98,8 @@ const crearTask = async (req, res) => {
             idJefe,
             titulo,
             descripcion,
-            fechaLimite
+            fechaLimite,
+            estado: true
         }
 
         const docRef = await db.collection('tareas').add(newTask)
@@ -87,6 +124,7 @@ const crearTask = async (req, res) => {
 }
 
 // Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
+// Usa params
 const actualizarTask = async (req, res) => {
     //     try {
     //         // id existente
@@ -137,6 +175,7 @@ const actualizarTask = async (req, res) => {
         if (titulo !== undefined) updatedData.titulo = titulo;
         if (descripcion !== undefined) updatedData.descripcion = descripcion;
         if (fechaLimite !== undefined) updatedData.fechaLimite = fechaLimite;
+        if (estado !== undefined) updatedData.estado = estado;
 
         // Verificar que haya un campo para actualizar
         if (Object.keys(updatedData).length === 0) {
@@ -164,36 +203,8 @@ const actualizarTask = async (req, res) => {
     }
 }
 
+// usa params
 const actualizarState = async (req, res) => {
-    //     try {
-    //         // id existente
-    //     const taskIdTest = "Bj4sc1huaXob4KziNrpq";
-
-    //     // prueba
-    //     const updateSample = {
-    //         titulo: "Título actualizado desde backend (test)",
-    //         descripcion: "Actualizado desde backend sin foraneas",
-    //         fechaLimite: new Date().toISOString()
-    //     };
-
-    //     const taskRef = db.collection('tareas').doc(taskIdTest);
-    //     await taskRef.update(updateSample);
-
-    //     res.status(200).json({
-    //         success: true,
-    //         message: "Tarea actualizada desde backend (test)",
-    //         data: { id: taskIdTest, ...updateSample }
-    //     });
-
-    // } catch (error) {
-    //     console.error("Error al actualizar la tarea:", error);
-    //     res.status(500).json({
-    //         success: false,
-    //         error: error.message
-    //     });
-    // }
-
-
     try {
         const { id } = req.params;
         const { estado} = req.body || {};
@@ -240,6 +251,7 @@ const actualizarState = async (req, res) => {
 
 module.exports = {
     obtenerTasks,
+    obtenerTaskPorId,
     crearTask,
     actualizarTask,
     actualizarState
