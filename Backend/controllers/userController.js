@@ -1,4 +1,4 @@
-const { db } = require('../config/firebase')
+const { db  } = require('../config/firebase')
 
 const obtenerUser = async (req, res) => {
     try {
@@ -25,7 +25,8 @@ const obtenerUser = async (req, res) => {
     }
 }
 
-const bcrypt = require('bcrypt');
+// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
+const bcrypt = require('bcrypt'); // Importar bcrypt
 
 const crearUser = async (req, res) => {
     try {
@@ -39,26 +40,26 @@ const crearUser = async (req, res) => {
             });
         }
 
-        // Normalizar el correo a minúsculas
+        // 🔹 Normalizar el correo a minúsculas
         correo = correo.toLowerCase().trim();
 
-        // Hashear la contraseña
+        // 🔹 Hashear la contraseña
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(contrasena, saltRounds);
 
-        // Crear el objeto del usuario
+        // 🔹 Crear el objeto del usuario
         const newUser = {
             correo,
-            contrasena: hashedPassword,
+            contrasena: hashedPassword, // guardamos la versión hasheada
             nombre,
             apellido,
             idRol 
         };
 
-        // Guardar en Firestore
+        // 🔹 Guardar en Firestore
         const docRef = await db.collection('usuarios').add(newUser);
 
-        // Devolver el ID del usuario creado
+        // 🔹 Devolver el ID del usuario creado
         res.status(201).json({ 
             success: true, 
             message: 'Usuario agregado exitosamente',
@@ -75,7 +76,8 @@ const crearUser = async (req, res) => {
             error: error.message 
         });
     }
-}
+};
+
 
 // Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
 const actualizarUser = async (req, res) => {
@@ -177,9 +179,6 @@ try {
 }
 
 //Aqui falta cambiar estado
-
-
-
 
 module.exports = {
     obtenerUser,
