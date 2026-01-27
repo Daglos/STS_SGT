@@ -1,37 +1,67 @@
 // src/pages/Login.jsx
-import { useState,useEffect } from 'react';
-import { data } from '../data/data';
+import { useState } from 'react';
+import { useAuth } from '../context/authContext';
+import { useNavigate } from 'react-router-dom'; 
 
-const logIn=()=>{
-  return true
+const url = import.meta.env.VITE_URL;
+
+const logIn = async (email, password) => {
+  const data = {
+    correo: email,
+    contrasena: password
+  }
+  
+  try {
+    const respuesta = await fetch(url + "/login/login", {
+      method: "POST",
+      headers: {                              
+        "Content-Type": "application/json",   
+      },
+
+      body: JSON.stringify(data)
+    });
+
+    if (!respuesta.ok) {
+      throw new Error(`Error HTTP: ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+    
+  
+    return datos.usuario;
+
+  } catch (error) {
+    console.error("Ocurrió un error al obtener los datos:", error.message);
+    return null;
+  }
 }
 
 export const Login = () => {
-  useEffect(()=>{
-    console.log(data)
-  },[])
-
-  
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => { 
     e.preventDefault();
-    console.log('Login:', { email, password });
-    if(logIn){
-      console.log("Inicio sesion")
+    
+    const usuario = await logIn(email, password); 
+    
+    if (usuario) { 
+      login(usuario); 
+      console.log("Login exitoso");
+      navigate('/home'); 
+    } else {
+      console.log("Error iniciando sesión");
     }
-
   };
 
   const handleCrearCuenta = () => {
     console.log('Crear cuenta');
-
   };
 
   const handleOlvidastePassword = () => {
     console.log('Olvidaste contraseña');
- 
   };
 
   return (
