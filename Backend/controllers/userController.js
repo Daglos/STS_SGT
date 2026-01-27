@@ -1,4 +1,4 @@
-const { db, auth } = require('../config/firebase')
+const { db } = require('../config/firebase')
 
 const obtenerUser = async (req, res) => {
     try {
@@ -25,51 +25,55 @@ const obtenerUser = async (req, res) => {
     }
 }
 
-// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
+const bcrypt = require('bcrypt');
+
 const crearUser = async (req, res) => {
     try {
-        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
+        let { correo, contrasena, nombre, apellido, idRol } = req.body || {};
 
         //  Validación básica
-        if (!nombre || apellido === undefined || !contrasena || !correo || idRol) {
-            return res.status(400).json({
-                success: false,
-                error: 'Faltan campos requeridos'
-            })
+        if (!nombre || apellido === undefined || !contrasena || !correo || !idRol) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Faltan campos requeridos' 
+            });
         }
 
+        // Normalizar el correo a minúsculas
         correo = correo.toLowerCase().trim();
 
-        const userCredential = await auth.createUserWithEmailAndPassword(correo, contrasena);
+        // Hashear la contraseña
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(contrasena, saltRounds);
 
-        const uid = userCredential.user.uid;
-
+        // Crear el objeto del usuario
         const newUser = {
             correo,
+            contrasena: hashedPassword,
             nombre,
             apellido,
-            idRol: "JN3KSuH83BfQrq314DHt",
-            uid
-        }
+            idRol 
+        };
 
-        const docRef = await db.collection('usuarios').add(newUser)
+        // Guardar en Firestore
+        const docRef = await db.collection('usuarios').add(newUser);
 
-        //  Devolver el ID del usuario creado
-        res.status(201).json({
-            success: true,
+        // Devolver el ID del usuario creado
+        res.status(201).json({ 
+            success: true, 
             message: 'Usuario agregado exitosamente',
             data: {
                 id: docRef.id,
                 ...newUser
             }
-        })
-    }
-    catch (error) {
-        console.error('Error al agregar usuario:', error)  //  Log del error
-        res.status(500).json({
-            success: false,
-            error: error.message
-        })
+        });
+
+    } catch(error) {
+        console.error('Error al agregar usuario:', error);  // Log del error
+        res.status(500).json({ 
+            success: false, 
+            error: error.message 
+        });
     }
 }
 
