@@ -1,0 +1,136 @@
+
+
+
+.home-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1d2e 0%, @jetBlue 50%, @blue-slate 100%);
+  padding: 60px 20px;
+  position: relative;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, fade(@coral-glow, 10%), transparent);
+    border-radius: 50%;
+    top: -250px;
+    right: -100px;
+    z-index: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, fade(@blue-slate, 20%), transparent);
+    border-radius: 50%;
+    bottom: -200px;
+    left: -100px;
+    z-index: 0;
+  }
+}
+
+.tasks-container {
+  width: 100%;
+  max-width: 800px; 
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.task-card {
+  background: fade(@white, 90%);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1.5px; 
+    background: linear-gradient(135deg, @coral-glow, transparent, @blue-slate);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.4;
+  }
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    background: @white;
+
+    .task-title {
+      color: @coral-glow;
+    }
+  }
+
+  .task-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: @jetBlue;
+    margin: 0;
+    transition: color 0.3s ease;
+    letter-spacing: -0.3px;
+  }
+
+  .task-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: @blue-slate;
+    margin: 0;
+    flex-grow: 1;
+    margin-bottom: 8px;
+  }
+
+
+  button {
+    align-self: flex-end; 
+    background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 8%) 100%);
+    color: @white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px fade(@coral-glow, 30%);
+    
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px fade(@coral-glow, 45%);
+      filter: brightness(1.1);
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .home-container { padding: 40px 15px; }
+  .task-card button { width: 100%; } 
+}
