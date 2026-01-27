@@ -30,7 +30,7 @@ const bcrypt = require('bcrypt'); // Importar bcrypt
 
 const crearUser = async (req, res) => {
     try {
-        let { correo, contrasena, nombre, apellido, idRol } = req.body || {};
+        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
 
         //  Validación básica
         if (!nombre || apellido === undefined || !contrasena || !correo || !idRol) {
