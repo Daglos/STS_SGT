@@ -17,7 +17,7 @@ const obtenerTasks=async(idUsuario)=>{
     }
 }
 
-export const Home=()=>{
+export const HistoryOfTask=()=>{
     const { usuario,loading } = useAuth();
    const navigate=useNavigate()
     const [tasks , setTasks]=useState([])
@@ -37,11 +37,11 @@ export const Home=()=>{
 }, [usuario,loading]);
     return(
         <div className="home-container">
-            <button className="goToButton" onClick={()=>{navigate("/historyOfTask")}}>Mirar el historial de tareas realizadas</button>
+             <button className="goToButton" onClick={()=>{navigate("/home")}}>Volver</button>
             <div className="tasks-container">
                 {
                 tasks.map((task)=>{
-                    if (task.estado==null || task.estado==undefined || task.estado=="inactivo"){
+                    if (task.estado==null || task.estado==undefined || task.estado=="activo"){
                         return
                     }
                     else{
@@ -60,9 +60,6 @@ export const Home=()=>{
                         <p className="task-description">
                             {task.descripcion}
                         </p>
-                 
-                       
-                        <button>Marcar como completada</button>
                         </div>
                    
                     )

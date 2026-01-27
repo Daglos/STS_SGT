@@ -206,7 +206,7 @@ const actualizarTask = async (req, res) => {
 // usa params
 const actualizarState = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.query;
         const { estado} = req.body || {};
 
         // Validar que se envió ID

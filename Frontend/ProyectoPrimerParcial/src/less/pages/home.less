@@ -1,14 +1,15 @@
-
-
-
 .home-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #1a1d2e 0%, @jetBlue 50%, @blue-slate 100%);
   padding: 60px 20px;
   position: relative;
   overflow-x: hidden;
+  overflow-y: hidden;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
 
   &::before {
     content: '';
@@ -35,6 +36,33 @@
   }
 }
 
+.goToButton {
+  background: rgba(255, 255, 255, 0.08);
+  color: @white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: @coral-glow;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    color: @coral-glow;
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
 .tasks-container {
   width: 100%;
   max-width: 800px; 
@@ -57,7 +85,11 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-
+  .buttonsTask{
+    display: flex;
+    flex-direction: column;
+  
+  }
   &::before {
     content: '';
     position: absolute;
@@ -82,7 +114,7 @@
   }
 
   .task-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 800;
     color: @jetBlue;
     margin: 0;
@@ -99,20 +131,19 @@
     margin-bottom: 8px;
   }
 
-
   button {
     align-self: flex-end; 
     background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 8%) 100%);
     color: @white;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 24px;
     font-size: 14px;
     font-weight: 700;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px fade(@coral-glow, 30%);
-    
+   
     &:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 18px fade(@coral-glow, 45%);
@@ -125,6 +156,7 @@
   }
 }
 
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -132,5 +164,6 @@
 
 @media (max-width: 768px) {
   .home-container { padding: 40px 15px; }
+  .tasks-container { width: 95%; }
   .task-card button { width: 100%; } 
 }

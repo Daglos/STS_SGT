@@ -4,7 +4,9 @@ import { useAuth } from "./context/authContext";
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import {Login} from './pages/login';
+import { HistoryOfTask } from './pages/historyOfTask';
 import { Home } from './pages/home';
+import { TaskDetail } from './pages/taskDetail';
 import './less/index.less';
 
 function App() {
@@ -17,10 +19,12 @@ function App() {
         if (usuario){
           navigate('/home')
         }
-    },[usuario,login,navigate])
+    },[usuario,login])
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/taskDetail" element={<TaskDetail/>}/>
+      <Route path="/historyOfTask" element={<HistoryOfTask/>}/>
       <Route path="/home" element={<Home/>}/>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
