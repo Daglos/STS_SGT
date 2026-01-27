@@ -30,7 +30,7 @@ const bcrypt = require('bcrypt'); // Importar bcrypt
 
 const crearUser = async (req, res) => {
     try {
-        const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
+        let { correo, contrasena, nombre, apellido, idRol } = req.body || {}; //let porque abajo se normaliza
 
         //  Validación básica
         if (!nombre || apellido === undefined || !contrasena || !correo || !idRol) {
@@ -47,13 +47,17 @@ const crearUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(contrasena, saltRounds);
 
+        // siempre el mismo rol de usuario
+        idRol = idRol || "JN3KSuH83BfQrq314DHt";
+
         // Crear el objeto del usuario
         const newUser = {
             correo,
             contrasena: hashedPassword,
             nombre,
             apellido,
-            idRol 
+            idRol,
+            estado: true
         };
 
         // Guardar en Firestore
