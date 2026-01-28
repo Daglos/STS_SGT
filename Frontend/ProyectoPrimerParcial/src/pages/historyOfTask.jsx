@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState } from "react";
+import { NavBar } from "../components/navBar";
 const url = import.meta.env.VITE_URL;
 
 const obtenerTasks=async(idUsuario)=>{
@@ -36,7 +37,10 @@ export const HistoryOfTask=()=>{
 
 }, [usuario,loading]);
     return(
+        <>
+        <NavBar/>
         <div className="home-container">
+ 
              <button className="goToButton" onClick={()=>{navigate("/home")}}>Volver</button>
             <div className="tasks-container">
                 {
@@ -69,5 +73,6 @@ export const HistoryOfTask=()=>{
                 
             </div>
         </div>
+        </>
     )
 }

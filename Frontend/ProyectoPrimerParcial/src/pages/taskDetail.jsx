@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { NavBar } from "../components/navBar";
 const url = import.meta.env.VITE_URL;
 
 export const TaskDetail = () => {
@@ -70,6 +70,8 @@ export const TaskDetail = () => {
     };
 
     return (
+        <>
+        <NavBar/>
         <div className="task-detail-container">
             <button className="back-button" onClick={() => navigate(-1)}>
                 Volver
@@ -119,5 +121,6 @@ export const TaskDetail = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 }

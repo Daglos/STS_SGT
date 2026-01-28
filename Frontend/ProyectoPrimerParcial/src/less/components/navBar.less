@@ -1,0 +1,203 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(26, 29, 46, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.6s ease-out;
+}
+
+.navbar-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 10%) 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: @white;
+    box-shadow: 0 4px 15px fade(@coral-glow, 40%);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 6px 20px fade(@coral-glow, 60%);
+      transform: rotate(10deg);
+    }
+  }
+
+  .brand-text {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(135deg, @white 0%, @coral-glow 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+  }
+}
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, @blue-slate 0%, @jetBlue 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: @white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: @white;
+    letter-spacing: 0.3px;
+  }
+}
+
+.logout-button {
+  background: rgba(255, 255, 255, 0.08);
+  color: @white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+  .logout-icon {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 8%) 100%);
+    border-color: @coral-glow;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px fade(@coral-glow, 40%);
+
+    .logout-icon {
+      transform: translateX(4px);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .navbar-content {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .navbar-brand {
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+
+    .brand-text {
+      font-size: 20px;
+    }
+  }
+
+  .user-info {
+    padding: 6px 12px;
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      font-size: 14px;
+    }
+
+    .user-name {
+      display: none; // Ocultar nombre en móvil
+    }
+  }
+
+  .logout-button {
+    padding: 8px 16px;
+    font-size: 13px;
+
+    span {
+      display: none; // Solo mostrar texto en móvil
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-brand .brand-text {
+    display: none; // Solo mostrar ícono en pantallas muy pequeñas
+  }
+
+  .logout-button {
+    padding: 8px 12px;
+    
+    &::after {
+      content: '→';
+      font-size: 18px;
+    }
+  }
+}
