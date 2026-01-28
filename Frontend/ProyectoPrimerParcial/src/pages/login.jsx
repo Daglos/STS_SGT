@@ -57,7 +57,7 @@ export const Login = () => {
   };
 
   const handleCrearCuenta = () => {
-    console.log('Crear cuenta');
+    navigate('/register')
   };
 
   const handleOlvidastePassword = () => {

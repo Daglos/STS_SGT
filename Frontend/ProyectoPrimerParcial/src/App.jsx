@@ -7,6 +7,8 @@ import {Login} from './pages/login';
 import { HistoryOfTask } from './pages/historyOfTask';
 import { Home } from './pages/home';
 import { TaskDetail } from './pages/taskDetail';
+import { Register } from './pages/register';
+import { CreateTask } from './pages/createTask';
 import './less/index.less';
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/taskDetail" element={<TaskDetail/>}/>
+      <Route path="/register" element={<Register/>}/>
+      <Route path="/createTask" element={<CreateTask/>}/>
       <Route path="/historyOfTask" element={<HistoryOfTask/>}/>
       <Route path="/home" element={<Home/>}/>
       <Route path="/" element={<Navigate to="/login" />} />
