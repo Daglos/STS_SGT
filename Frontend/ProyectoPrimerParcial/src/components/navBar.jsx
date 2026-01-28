@@ -15,7 +15,7 @@ export const NavBar = () => {
                         <div className="user-avatar">
                             {usuario?.nombre?.charAt(0).toUpperCase() || 'U'}
                         </div>
-                        <span className="user-name">{usuario?.nombre || 'Usuario'}</span>
+                        <span className="user-name">{usuario?.nombre || 'Usuario'} {usuario?.apellido || ''}</span>
                     </div>
                     
                     <button className="logout-button" onClick={logout}>

@@ -11,7 +11,39 @@
   align-items: center;
   justify-content: flex-start;
   gap: 40px;
-  
+  .createTaskButton {
+  background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 8%) 100%);
+  color: @white;
+  border: 2px solid @coral-glow;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  box-shadow: 0 4px 20px fade(@coral-glow, 40%);
+
+  &:hover {
+    background: linear-gradient(135deg, lighten(@coral-glow, 5%) 0%, @coral-glow 100%);
+    border-color: lighten(@coral-glow, 10%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px fade(@coral-glow, 55%);
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+@media (max-width: 768px) {
+  .createTaskButton {
+    padding: 14px 28px;
+    font-size: 15px;
+  }
+}
   h3{
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(15px);
@@ -132,7 +164,6 @@
       animation: float 3s ease-in-out infinite;
     }
 
-    // Gradiente sutil en el borde
     &::after {
       content: '';
       position: absolute;
@@ -151,6 +182,7 @@
 .task-card {
   background: fade(@white, 90%);
   backdrop-filter: blur(12px);
+  cursor: pointer;
   border-radius: 20px;
   padding: 28px;
   position: relative;

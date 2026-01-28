@@ -62,25 +62,7 @@ const obtenerTaskPorId = async (req, res) => {
 
 
 const crearTask = async (req, res) => {
-    // try {
-    //     const sampleTask = {
-    //         idEmpleado: "EMP.TEST",
-    //         idJefe: "JEF.TEST",
-    //         titulo: "Tarea de prueba",
-    //         descripcion: "Generada sin datos desde backend",
-    //         fechaLimite: new Date().toISOString()
-    //     }
 
-    //     const docRef = await db.collection('tareas').add(sampleTask);
-
-    //     res.status(201).json({
-    //         success: true,
-    //         message: 'Tarea creada sin datos desde backend (test)',
-    //         data: { id: docRef.id, ...sampleTask }
-    //     })
-    // } catch (error) {
-    //     res.status(500).json({ success: false, error: error.message })
-    // }
 
     try {
         const { idEmpleado, idJefe, titulo, descripcion, fechaLimite} = req.body || {}
@@ -99,7 +81,7 @@ const crearTask = async (req, res) => {
             titulo,
             descripcion,
             fechaLimite,
-            estado: true
+            estado: 'activo'
         }
 
         const docRef = await db.collection('tareas').add(newTask)

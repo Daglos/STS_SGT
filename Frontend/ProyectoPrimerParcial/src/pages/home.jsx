@@ -20,8 +20,10 @@ const obtenerTasks=async(idUsuario)=>{
 
 export const Home=()=>{
     const { usuario,loading } = useAuth();
+    
    const navigate=useNavigate()
     const [tasks , setTasks]=useState([])
+    
     const [labelNoTasksDisponibles,setLabelNoTasksDisponibles]=useState("")
 
     const showLabelTagNoTasksDisponibles=()=>{
@@ -33,6 +35,7 @@ export const Home=()=>{
 
 
     useEffect(() => {
+
     
     if (!loading && usuario?.id){
         console.log(usuario)
@@ -70,11 +73,23 @@ export const Home=()=>{
         }
     },[tasks,usuario,loading])
 
+   if (loading) {
+        return (
+            <div className="home-container">
+                <p style={{ color: 'white', textAlign: 'center' }}>Cargando...</p>
+            </div>
+        );
+    }
+
+
+    if (!usuario) {
+        return ""; 
+    }
     return(
         <>
         <NavBar/>
         <div className="home-container">
-            
+            {usuario.idRol=="QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={()=>{navigate('/createTask')}}>Crear tareas</button> : <></>}
             <button className="goToButton" onClick={()=>{navigate("/historyOfTask")}}>Mirar el historial de tareas realizadas</button>
             <div className="tasks-container">
                 {labelNoTasksDisponibles=="" ? <></> : <h2>{labelNoTasksDisponibles}</h2> }
