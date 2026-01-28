@@ -56,9 +56,11 @@ export const TaskDetail = () => {
             </div>
         );
     }
-
     const formatearFecha = (timestamp) => {
-        if (!timestamp || !timestamp._seconds) return "Sin fecha";
+    if (!timestamp) return "Sin fecha";
+    
+
+    if (timestamp._seconds) {
         const fecha = new Date(timestamp._seconds * 1000);
         return fecha.toLocaleDateString('es-ES', {
             year: 'numeric',
@@ -67,8 +69,22 @@ export const TaskDetail = () => {
             hour: '2-digit',
             minute: '2-digit'
         });
-    };
+    }
+    
 
+    if (typeof timestamp === 'string') {
+        const fecha = new Date(timestamp);
+        return fecha.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    return "Formato de fecha no válido";
+};
     return (
         <>
         <NavBar/>
