@@ -1,4 +1,5 @@
 const { db } = require('../config/firebase')
+const nodemailer = require('nodemailer')
 
 const obtenerUser = async (req, res) => {
     try {
@@ -190,3 +191,99 @@ module.exports = {
     actualizarUser,
     actualizarState
 }
+
+// Solicitar código para cambiar la contraseña
+const solicitarCambioContrasena = async (req, res) => {
+    try {
+        let { correo } = req.body || {};
+
+        if (!correo) return res.status(400).json({ success: false, error: 'Falta el correo' });
+
+        correo = correo.toLowerCase().trim();
+
+        // Buscar usuario por correo
+        const userQuery = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
+        if (userQuery.empty) return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+
+        const userDoc = userQuery.docs[0];
+
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos
+        const expiry = Date.now() + 15 * 60 * 1000; // 15 minutos
+
+        await userDoc.ref.update({ resetCode: codigo, resetExpiry: expiry });
+
+        // Configurar transporter con variables de entorno
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
+
+        const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
+
+        const mailOptions = {
+            from: from,
+            to: correo,
+            subject: 'Código para cambiar contraseña',
+            text: `Su código para cambiar la contraseña es: ${codigo}. Válido por 15 minutos.`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ success: true, message: 'Código enviado al correo' });
+
+    } catch (error) {
+        console.error('Error en solicitarCambioContrasena:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+// Cambiar la contraseña usando el código enviado
+const cambiarContrasena = async (req, res) => {
+    try {
+        let { correo, codigo, nuevaContrasena } = req.body || {};
+
+        if (!correo || !codigo || !nuevaContrasena) {
+            return res.status(400).json({ success: false, error: 'Faltan campos requeridos' });
+        }
+
+        correo = correo.toLowerCase().trim();
+
+        const userQuery = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
+        if (userQuery.empty) return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+
+        const userDoc = userQuery.docs[0];
+        const data = userDoc.data() || {};
+
+        if (!data.resetCode || !data.resetExpiry) {
+            return res.status(400).json({ success: false, error: 'No hay un código solicitado' });
+        }
+
+        if (data.resetCode !== codigo) {
+            return res.status(400).json({ success: false, error: 'Código inválido' });
+        }
+
+        if (Date.now() > data.resetExpiry) {
+            return res.status(400).json({ success: false, error: 'Código expirado' });
+        }
+
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(nuevaContrasena, saltRounds);
+
+        await userDoc.ref.update({ contrasena: hashedPassword, resetCode: null, resetExpiry: null });
+
+        res.json({ success: true, message: 'Contraseña actualizada correctamente' });
+
+    } catch (error) {
+        console.error('Error en cambiarContrasena:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+}
+
+// Añadir las nuevas funciones a las exportaciones
+module.exports.solicitarCambioContrasena = solicitarCambioContrasena
+module.exports.cambiarContrasena = cambiarContrasena
