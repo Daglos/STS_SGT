@@ -15,6 +15,6 @@ router.post('/crearUsers',crearUser)
 router.put('/actualizarUsers',actualizarUser)
 router.put('/actualizarState',actualizarState)
 router.post('/solicitarCambioContrasena', solicitarCambioContrasena)
-router.post('/cambiarContrasena', cambiarContrasena)
+router.put('/cambiarContrasena', cambiarContrasena)
 
 module.exports = router

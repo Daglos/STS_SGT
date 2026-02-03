@@ -1,5 +1,7 @@
 const { db } = require('../config/firebase')
 const nodemailer = require('nodemailer')
+const crypto = require('crypto');
+
 
 const obtenerUser = async (req, res) => {
     try {
@@ -35,9 +37,9 @@ const crearUser = async (req, res) => {
 
         //  Validación básica
         if (!nombre || apellido === undefined || !contrasena || !correo || !idRol) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Faltan campos requeridos' 
+            return res.status(400).json({
+                success: false,
+                error: 'Faltan campos requeridos'
             });
         }
 
@@ -65,8 +67,8 @@ const crearUser = async (req, res) => {
         const docRef = await db.collection('usuarios').add(newUser);
 
         // Devolver el ID del usuario creado
-        res.status(201).json({ 
-            success: true, 
+        res.status(201).json({
+            success: true,
             message: 'Usuario agregado exitosamente',
             data: {
                 id: docRef.id,
@@ -74,11 +76,11 @@ const crearUser = async (req, res) => {
             }
         });
 
-    } catch(error) {
+    } catch (error) {
         console.error('Error al agregar usuario:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message 
+        res.status(500).json({
+            success: false,
+            error: error.message
         });
     }
 }
@@ -140,7 +142,7 @@ const actualizarUser = async (req, res) => {
 }
 
 const actualizarState = async (req, res) => {
-try {
+    try {
         const { id } = req.params;
         const { estado } = req.body || {};
 
@@ -185,17 +187,13 @@ try {
 
 //Aqui falta cambiar estado
 
-module.exports = {
-    obtenerUser,
-    crearUser,
-    actualizarUser,
-    actualizarState
-}
 
 // Solicitar código para cambiar la contraseña
 const solicitarCambioContrasena = async (req, res) => {
     try {
         let { correo } = req.body || {};
+
+        // let correo = 'richardgalo2003@gmail.com';
 
         if (!correo) return res.status(400).json({ success: false, error: 'Falta el correo' });
 
@@ -207,7 +205,8 @@ const solicitarCambioContrasena = async (req, res) => {
 
         const userDoc = userQuery.docs[0];
 
-        const codigo = Math.floor(100000 + Math.random() * 900000).toString(); // 6 dígitos
+        const codigo = crypto.randomBytes(3).toString('hex').toUpperCase(); // HEX
+
         const expiry = Date.now() + 15 * 60 * 1000; // 15 minutos
 
         await userDoc.ref.update({ resetCode: codigo, resetExpiry: expiry });
@@ -215,7 +214,7 @@ const solicitarCambioContrasena = async (req, res) => {
         // Configurar transporter con variables de entorno
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
+            port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465,
             secure: process.env.SMTP_SECURE === 'true',
             auth: {
                 user: process.env.SMTP_USER,
@@ -223,17 +222,61 @@ const solicitarCambioContrasena = async (req, res) => {
             }
         });
 
-        const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
-
         const mailOptions = {
-            from: from,
+            from: `"Soporte" <${process.env.SMTP_USER}>`,
             to: correo,
-            subject: 'Código para cambiar contraseña',
-            text: `Su código para cambiar la contraseña es: ${codigo}. Válido por 15 minutos.`
+            subject: 'Código de verificación para cambio de contraseña',
+            text: `Hemos recibido una solicitud para cambiar tu contraseña.
+
+            Tu código de verificación es: ${codigo}
+
+            Este código es válido por 15 minutos.
+            No compartas este código con nadie.
+            
+            Atentamente,
+            Equipo de Soporte`,
+            html: `
+            <div style="font-family: Arial, sans-serif; color: #333;">
+                <h2>Cambio de contraseña</h2>
+                <p>Hola,</p>
+
+                <p>Hemos recibido una solicitud para cambiar tu contraseña.</p>
+
+                <p style="font-size: 18px;">
+                    <strong>Código de verificación:</strong>
+                </p>
+
+                <div style="
+                    font-size: 28px;
+                    font-weight: bold;
+                    letter-spacing: 4px;
+                    margin: 16px 0;
+                ">
+                    ${codigo}
+                </div>
+
+                <p>Este código es válido por <strong>15 minutos</strong>.</p>
+
+                <p style="color: #b00020;">
+                    <strong>No compartas este código con nadie.</strong>
+                </p>
+
+                <p>Si no solicitaste este cambio de contraseña, puedes ignorar este mensaje.</p>
+
+                <hr />
+
+                <p style="font-size: 12px; color: #777;">
+                    Este correo fue enviado automáticamente. Por favor, no respondas a este mensaje.
+                </p>
+            </div>
+            `
         };
 
-        await transporter.sendMail(mailOptions);
+        await transporter.verify().then(() => {
+            console.log('Listo para enviar correos');
+        });
 
+        await transporter.sendMail(mailOptions);
         res.json({ success: true, message: 'Código enviado al correo' });
 
     } catch (error) {
@@ -246,6 +289,10 @@ const solicitarCambioContrasena = async (req, res) => {
 const cambiarContrasena = async (req, res) => {
     try {
         let { correo, codigo, nuevaContrasena } = req.body || {};
+
+        // let correo = 'richardgalo2003@gmail.com';
+        // let codigo = 'E0161F';
+        // let nuevaContrasena = 'richard';
 
         if (!correo || !codigo || !nuevaContrasena) {
             return res.status(400).json({ success: false, error: 'Faltan campos requeridos' });
@@ -285,5 +332,12 @@ const cambiarContrasena = async (req, res) => {
 }
 
 // Añadir las nuevas funciones a las exportaciones
-module.exports.solicitarCambioContrasena = solicitarCambioContrasena
-module.exports.cambiarContrasena = cambiarContrasena
+
+module.exports = {
+    obtenerUser,
+    crearUser,
+    actualizarUser,
+    actualizarState,
+    solicitarCambioContrasena,
+    cambiarContrasena
+}
