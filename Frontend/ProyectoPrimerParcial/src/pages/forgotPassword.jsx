@@ -50,7 +50,6 @@ export const ForgotPassword = () => {
         }
     };
 
-    // Función para cambiar la contraseña
     const handleCambiarContrasena = async (e) => {
         e.preventDefault();
         setMensaje({ tipo: '', texto: '' });
