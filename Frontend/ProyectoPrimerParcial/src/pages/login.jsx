@@ -1,7 +1,8 @@
-// src/pages/Login.jsx
+
 import { useState } from 'react';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom'; 
+
 
 const url = import.meta.env.VITE_URL;
 
@@ -17,22 +18,30 @@ const logIn = async (email, password) => {
       headers: {                              
         "Content-Type": "application/json",   
       },
-
       body: JSON.stringify(data)
     });
-
-    if (!respuesta.ok) {
-      throw new Error(`Error HTTP: ${respuesta.status}`);
-    }
 
     const datos = await respuesta.json();
     
   
-    return datos.usuario;
+    if (!respuesta.ok) {
+      return { 
+        error: true, 
+        mensaje: datos.error || 'Error al iniciar sesión' 
+      };
+    }
+
+    return { 
+      error: false, 
+      usuario: datos.usuario 
+    };
 
   } catch (error) {
     console.error("Ocurrió un error al obtener los datos:", error.message);
-    return null;
+    return { 
+      error: true, 
+      mensaje: 'Error de conexión. Verifica tu internet.' 
+    };
   }
 }
 
@@ -41,19 +50,33 @@ export const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
   const handleLogin = async (e) => { 
     e.preventDefault();
+    setMensaje({ tipo: '', texto: '' }); 
+    setLoading(true);
     
-    const usuario = await logIn(email, password); 
+    const resultado = await logIn(email, password); 
     
-    if (usuario) { 
-      login(usuario); 
-      console.log("Login exitoso");
-      navigate('/home'); 
+    if (!resultado.error && resultado.usuario) { 
+      setMensaje({ tipo: 'success', texto: '¡Inicio de sesión exitoso!' });
+      
+  
+      setTimeout(() => {
+        login(resultado.usuario); 
+        navigate('/home'); 
+      }, 1000);
     } else {
-      console.log("Error iniciando sesión");
+    
+      setMensaje({ 
+        tipo: 'error', 
+        texto: resultado.mensaje || 'Credenciales incorrectas' 
+      });
     }
+    
+    setLoading(false);
   };
 
   const handleCrearCuenta = () => {
@@ -61,7 +84,7 @@ export const Login = () => {
   };
 
   const handleOlvidastePassword = () => {
-    console.log('Olvidaste contraseña');
+    navigate('/forgotPassword')
   };
 
   return (
@@ -79,6 +102,7 @@ export const Login = () => {
               placeholder="ejemplo@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
               required
             />
           </div>
@@ -91,23 +115,45 @@ export const Login = () => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
               required
             />
           </div>
 
-          <button type="button" className="forgot-password" onClick={handleOlvidastePassword}>
+          <button 
+            type="button" 
+            className="forgot-password" 
+            onClick={handleOlvidastePassword}
+            disabled={loading}
+          >
             ¿Olvidaste tu contraseña?
           </button>
 
-          <button type="submit" className="btn-login">
-            Iniciar Sesión
+      
+          {mensaje.texto && (
+            <div className={`mensaje-login mensaje-${mensaje.tipo}`}>
+              {mensaje.texto}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="btn-login"
+            disabled={loading}
+          >
+            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </button>
 
           <div className="divider">
             <span>o</span>
           </div>
 
-          <button type="button" className="btn-crear-cuenta" onClick={handleCrearCuenta}>
+          <button 
+            type="button" 
+            className="btn-crear-cuenta" 
+            onClick={handleCrearCuenta}
+            disabled={loading}
+          >
             Crear cuenta
           </button>
         </form>

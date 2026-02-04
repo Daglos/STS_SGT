@@ -21,7 +21,7 @@ const iniciarSesion = async (req, res) => {
         if (snapshot.empty) {
             return res.status(404).json({
                 success: false,
-                error: "Usuario no encontrado"
+                error: "Credenciales incorrectas"
             });
         }
 
