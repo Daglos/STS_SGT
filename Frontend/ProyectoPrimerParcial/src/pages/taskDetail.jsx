@@ -3,6 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { NavBar } from "../components/navBar";
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Componente de detalle de tarea
+ * Muestra la información completa de una tarea seleccionada y permite marcarla como completada
+ */
 export const TaskDetail = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -11,6 +15,10 @@ export const TaskDetail = () => {
     const [taskState, setTaskState] = useState(task);
     const [loading, setLoading] = useState(false);
 
+    /**
+     * Función para actualizar el estado de la tarea a "inactivo"
+     * Realiza una petición PUT al servidor y actualiza el estado local tras el éxito
+     */
     const markAsCompleted = async () => {
         try {
             setLoading(true);
@@ -36,7 +44,7 @@ export const TaskDetail = () => {
                 estado: "inactivo"
             });
 
-   
+    
 
         } catch (error) {
             console.error('Error:', error);
@@ -46,6 +54,10 @@ export const TaskDetail = () => {
         }
     }
 
+    /**
+     * Renderizado condicional en caso de que no existan datos de la tarea
+     * Proporciona una opción de navegación para volver al inicio
+     */
     if (!taskState) {
         return (
             <div className="task-detail-container">
@@ -56,6 +68,11 @@ export const TaskDetail = () => {
             </div>
         );
     }
+
+    /**
+     * Función auxiliar para normalizar y mostrar fechas
+     * Maneja formatos de Timestamp (Firebase) y cadenas de texto estándar
+     */
     const formatearFecha = (timestamp) => {
     if (!timestamp) return "Sin fecha";
     
@@ -96,6 +113,9 @@ export const TaskDetail = () => {
             <div className="detail-card">
                 <div className="detail-header">
                     <h1 className="detail-title">{taskState.titulo}</h1>
+                    {/**
+                      * Badge dinámico que cambia de clase según el estado de la tarea
+                      */}
                     <span className={`status-badge ${taskState.estado}`}>
                         {taskState.estado === 'activo' ? 'Activo' : 'Inactivo'}
                     </span>
@@ -123,6 +143,10 @@ export const TaskDetail = () => {
                 </div>
 
                 <div className="detail-actions">
+                    {/**
+                      * Botón de acción principal
+                      * Se deshabilita durante la carga o si la tarea ya ha sido completada
+                      */}
                     <button 
                         className="action-button primary" 
                         onClick={markAsCompleted}

@@ -5,6 +5,10 @@ import { useState } from "react";
 import { NavBar } from "../components/navBar";
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Función para obtener las tareas de un usuario específico
+ * Realiza una petición GET al backend filtrando por ID de usuario
+ */
 const obtenerTasks=async(idUsuario)=>{
     try{
     const response=await fetch(url+`/task/obtenerTaskPorId?idUsuario=${idUsuario}`)
@@ -18,6 +22,10 @@ const obtenerTasks=async(idUsuario)=>{
     }
 }
 
+/**
+ * Componente de página principal (Home)
+ * Muestra las tareas pendientes del usuario y gestiona el acceso a la creación e historial
+ */
 export const Home=()=>{
     const { usuario,loading } = useAuth();
     
@@ -26,6 +34,10 @@ export const Home=()=>{
     
     const [labelNoTasksDisponibles,setLabelNoTasksDisponibles]=useState("")
 
+    /**
+     * Funciones para gestionar la visibilidad del mensaje de "No hay tareas"
+     * Actualizan el estado del label según la disponibilidad de tareas pendientes
+     */
     const showLabelTagNoTasksDisponibles=()=>{
         setLabelNoTasksDisponibles("No tienes tareas pendientes a realizar")
     }
@@ -34,6 +46,10 @@ export const Home=()=>{
     }
 
 
+    /**
+     * Efecto para cargar las tareas del usuario al montar el componente
+     * Se ejecuta cuando el usuario está autenticado y los datos de sesión han cargado
+     */
     useEffect(() => {
 
     
@@ -51,6 +67,10 @@ export const Home=()=>{
 
 }, [usuario,loading]);
 
+    /**
+     * Efecto para verificar la existencia de tareas activas
+     * Cuenta las tareas válidas y determina si se debe mostrar el mensaje de "No hay tareas"
+     */
     useEffect(()=>{
         let contadorTasksDisponibles=0
         tasks.map((task)=>{
@@ -89,13 +109,25 @@ export const Home=()=>{
         <>
         <NavBar/>
         <div className="home-container">
+            {/**
+              * Renderizar botón de creación solo si el usuario tiene el rol administrativo específico
+              */}
             {usuario.idRol=="QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={()=>{navigate('/createTask')}}>Crear tareas</button> : <></>}
+            
             <button className="goToButton" onClick={()=>{navigate("/historyOfTask")}}>Mirar el historial de tareas realizadas</button>
+            
             <div className="tasks-container">
+                {/**
+                  * Mostrar mensaje de aviso si no hay tareas pendientes identificadas
+                  */}
                 {labelNoTasksDisponibles=="" ? <></> : <h2>{labelNoTasksDisponibles}</h2> }
                 
                 {
                     
+                /**
+                 * Iterar sobre las tareas y renderizar solo las que están en estado activo
+                 * Ignora tareas inactivas, nulas o sin estado definido
+                 */
                 tasks.map((task)=>{
                     if (task.estado==null || task.estado==undefined || task.estado=="inactivo"){
                         return
@@ -104,6 +136,10 @@ export const Home=()=>{
                          return(
                     
                        
+                        /**
+                         * Renderizar tarjeta de tarea con navegación al detalle
+                         * Envía el objeto de la tarea a través del estado de navegación
+                         */
                         <div className="task-card" key={task.id} onClick={()=>{navigate('/taskDetail', 
                             { 
                             state: { 
@@ -123,7 +159,7 @@ export const Home=()=>{
                    
                     )
                     }
-                   
+                    
                 })}
                 
             </div>

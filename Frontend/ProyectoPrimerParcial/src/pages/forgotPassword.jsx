@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Componente de página para recuperación de contraseña
+ * Maneja el proceso de dos pasos: solicitud de código y cambio de contraseña
+ */
 export const ForgotPassword = () => {
     const [step, setStep] = useState(1); 
     const [correo, setCorreo] = useState('');
@@ -10,11 +14,17 @@ export const ForgotPassword = () => {
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
-
+    /**
+     * Maneja la solicitud de código de verificación
+     * Envía el correo al backend para que genere y envíe un código
+     */
     const handleSolicitarCodigo = async (e) => {
         e.preventDefault();
         setMensaje({ tipo: '', texto: '' });
 
+        /**
+         * Validar que se haya ingresado un correo electrónico
+         */
         if (!correo.trim()) {
             setMensaje({ tipo: 'error', texto: 'Por favor ingresa tu correo electrónico' });
             return;
@@ -23,6 +33,9 @@ export const ForgotPassword = () => {
         setLoading(true);
 
         try {
+            /**
+             * Realizar petición POST para solicitar el código de recuperación
+             */
             const response = await fetch(url+'/user/solicitarCambioContrasena', {
                 method: 'POST',
                 headers: {
@@ -33,6 +46,9 @@ export const ForgotPassword = () => {
 
             const data = await response.json();
 
+            /**
+             * Si el código se envió exitosamente, avanzar al paso 2
+             */
             if (data.success) {
                 setMensaje({ tipo: 'success', texto: 'Código enviado a tu correo. Revisa tu bandeja de entrada.' });
                 setTimeout(() => {
@@ -50,20 +66,33 @@ export const ForgotPassword = () => {
         }
     };
 
+    /**
+     * Maneja el cambio de contraseña usando el código de verificación
+     * Valida los datos y envía la petición para actualizar la contraseña
+     */
     const handleCambiarContrasena = async (e) => {
         e.preventDefault();
         setMensaje({ tipo: '', texto: '' });
 
+        /**
+         * Validar que todos los campos estén completos
+         */
         if (!codigo.trim() || !nuevaContrasena.trim() || !confirmarContrasena.trim()) {
             setMensaje({ tipo: 'error', texto: 'Por favor completa todos los campos' });
             return;
         }
 
+        /**
+         * Validar que las contraseñas coincidan
+         */
         if (nuevaContrasena !== confirmarContrasena) {
             setMensaje({ tipo: 'error', texto: 'Las contraseñas no coinciden' });
             return;
         }
 
+        /**
+         * Validar longitud mínima de la contraseña
+         */
         if (nuevaContrasena.length < 6) {
             setMensaje({ tipo: 'error', texto: 'La contraseña debe tener al menos 6 caracteres' });
             return;
@@ -72,6 +101,9 @@ export const ForgotPassword = () => {
         setLoading(true);
 
         try {
+            /**
+             * Realizar petición PUT para cambiar la contraseña
+             */
             const response = await fetch(url+'/user/cambiarContrasena', {
                 method: 'PUT',
                 headers: {
@@ -86,6 +118,9 @@ export const ForgotPassword = () => {
 
             const data = await response.json();
 
+            /**
+             * Si el cambio fue exitoso, redirigir al login después de 2 segundos
+             */
             if (data.success) {
                 setMensaje({ tipo: 'success', texto: '¡Contraseña actualizada exitosamente!' });
                 setTimeout(() => {
@@ -102,7 +137,10 @@ export const ForgotPassword = () => {
         }
     };
 
-    
+    /**
+     * Maneja el retorno al paso 1 desde el paso 2
+     * Limpia los campos del formulario de cambio de contraseña
+     */
     const handleVolver = () => {
         setStep(1);
         setCodigo('');

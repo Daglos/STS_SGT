@@ -1,14 +1,25 @@
 const { db } = require('../config/firebase')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
-
+/**
+ * Controlador para obtener todos los usuarios del sistema
+ * Recupera la lista completa de usuarios desde Firebase y los retorna en formato JSON
+ */
 const obtenerUser = async (req, res) => {
     try {
+        /**
+         * Obtener todos los documentos de la colección de usuarios
+         */
         const userSnapshot = await db.collection('usuarios').get()
         console.log(userSnapshot)
         const user = []
 
+        /**
+         * Iterar sobre cada documento y construir el array de usuarios
+         * incluyendo el ID del documento junto con sus datos
+         */
         userSnapshot.forEach(doc => {
             user.push({
                 id: doc.id,
@@ -16,6 +27,9 @@ const obtenerUser = async (req, res) => {
             })
         })
 
+        /**
+         * Retornar la lista de usuarios con el total de registros
+         */
         res.json({
             success: true,
             data: user,
@@ -28,14 +42,17 @@ const obtenerUser = async (req, res) => {
     }
 }
 
-// Aqui falta poner que al crear un usuario de manera prefeterminada sea idRol Empleado
-const bcrypt = require('bcrypt'); // Importar bcrypt
-
+/**
+ * Controlador para crear un nuevo usuario en el sistema
+ * Valida los campos requeridos, hashea la contraseña y almacena el usuario en Firebase
+ */
 const crearUser = async (req, res) => {
     try {
-        let { correo, contrasena, nombre, apellido, idRol } = req.body || {}; //let porque abajo se normaliza
+        let { correo, contrasena, nombre, apellido, idRol } = req.body || {};
 
-        //  Validación básica
+        /**
+         * Validar que todos los campos requeridos estén presentes
+         */
         if (!nombre || apellido === undefined || !contrasena || !correo || !idRol) {
             return res.status(400).json({
                 success: false,
@@ -43,17 +60,25 @@ const crearUser = async (req, res) => {
             });
         }
 
-        // Normalizar el correo a minúsculas
+        /**
+         * Normalizar el correo electrónico a minúsculas y eliminar espacios
+         */
         correo = correo.toLowerCase().trim();
 
-        // Hashear la contraseña
+        /**
+         * Hashear la contraseña antes de almacenarla
+         */
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(contrasena, saltRounds);
 
-        // siempre el mismo rol de usuario
+        /**
+         * Asignar rol de empleado por defecto si no se proporciona
+         */
         idRol = idRol || "JN3KSuH83BfQrq314DHt";
 
-        // Crear el objeto del usuario
+        /**
+         * Construir el objeto del nuevo usuario con estado activo por defecto
+         */
         const newUser = {
             correo,
             contrasena: hashedPassword,
@@ -63,10 +88,14 @@ const crearUser = async (req, res) => {
             estado: true
         };
 
-        // Guardar en Firestore
+        /**
+         * Guardar el nuevo usuario en la colección de Firestore
+         */
         const docRef = await db.collection('usuarios').add(newUser);
 
-        // Devolver el ID del usuario creado
+        /**
+         * Retornar confirmación con los datos del usuario creado
+         */
         res.status(201).json({
             success: true,
             message: 'Usuario agregado exitosamente',
@@ -85,14 +114,18 @@ const crearUser = async (req, res) => {
     }
 }
 
-
-// Aqui falta probar a editar/actualizar desde frontend como pasar el id del documento/registro
+/**
+ * Controlador para actualizar los datos de un usuario existente
+ * Permite actualizar parcial o totalmente los campos del usuario
+ */
 const actualizarUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { correo, contrasena, nombre, apellido, idRol } = req.body || {};
 
-        // Validar que se envió ID
+        /**
+         * Validar que se proporcione el ID del usuario
+         */
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -100,7 +133,9 @@ const actualizarUser = async (req, res) => {
             });
         }
 
-        // Construir objeto con los campos que fueron enviados
+        /**
+         * Construir el objeto con solo los campos que se van a actualizar
+         */
         const updatedData = {};
 
         if (correo !== undefined) updatedData.correo = correo;
@@ -109,7 +144,9 @@ const actualizarUser = async (req, res) => {
         if (apellido !== undefined) updatedData.apellido = apellido;
         if (idRol !== undefined) updatedData.idRol = idRol;
 
-        // Verificar que haya un campo para actualizar
+        /**
+         * Validar que se haya enviado al menos un campo para actualizar
+         */
         if (Object.keys(updatedData).length === 0) {
             return res.status(400).json({
                 success: false,
@@ -117,15 +154,24 @@ const actualizarUser = async (req, res) => {
             });
         }
 
+        /**
+         * Actualizar la contraseña en Firebase Auth si se proporcionó
+         */
         if (contrasena) {
             await auth.updateUser(id, { password: contrasena });
         }
 
+        /**
+         * Actualizar los datos del usuario en Firestore
+         */
         if (Object.keys(updatedData).length > 0) {
             const userRef = db.collection('usuarios').doc(id);
             await userRef.update(updatedData);
         }
 
+        /**
+         * Retornar confirmación con los datos actualizados
+         */
         res.status(200).json({
             success: true,
             message: 'Usuario actualizado correctamente',
@@ -141,12 +187,18 @@ const actualizarUser = async (req, res) => {
     }
 }
 
+/**
+ * Controlador para actualizar únicamente el estado de un usuario
+ * Permite activar o desactivar usuarios sin modificar otros campos
+ */
 const actualizarState = async (req, res) => {
     try {
         const { id } = req.params;
         const { estado } = req.body || {};
 
-        // Validar que se envió ID
+        /**
+         * Validar que se proporcione el ID del usuario
+         */
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -154,12 +206,16 @@ const actualizarState = async (req, res) => {
             });
         }
 
-        // Construir objeto con los campos que fueron enviados
+        /**
+         * Construir el objeto con el estado a actualizar
+         */
         const updatedData = {};
 
         if (estado !== undefined) updatedData.estado = estado;
 
-        // Verificar que haya un campo para actualizar
+        /**
+         * Validar que se haya proporcionado el estado
+         */
         if (Object.keys(updatedData).length === 0) {
             return res.status(400).json({
                 success: false,
@@ -167,9 +223,15 @@ const actualizarState = async (req, res) => {
             });
         }
 
+        /**
+         * Actualizar solo el estado del usuario en Firestore
+         */
         const userRef = db.collection('usuarios').doc(id);
         await userRef.update(updatedData);
 
+        /**
+         * Retornar confirmación con el estado actualizado
+         */
         res.status(200).json({
             success: true,
             message: 'Usuario actualizado correctamente',
@@ -185,33 +247,50 @@ const actualizarState = async (req, res) => {
     }
 }
 
-//Aqui falta cambiar estado
-
-
-// Solicitar código para cambiar la contraseña
+/**
+ * Controlador para solicitar un código de verificación para cambio de contraseña
+ * Genera un código aleatorio, lo almacena con tiempo de expiración y lo envía por correo
+ */
 const solicitarCambioContrasena = async (req, res) => {
     try {
         let { correo } = req.body || {};
 
-        // let correo = 'richardgalo2003@gmail.com';
-
+        /**
+         * Validar que se proporcione el correo electrónico
+         */
         if (!correo) return res.status(400).json({ success: false, error: 'Falta el correo' });
 
+        /**
+         * Normalizar el correo electrónico a minúsculas y eliminar espacios
+         */
         correo = correo.toLowerCase().trim();
 
-        // Buscar usuario por correo
+        /**
+         * Buscar el usuario por correo electrónico en la base de datos
+         */
         const userQuery = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
         if (userQuery.empty) return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
 
         const userDoc = userQuery.docs[0];
 
-        const codigo = crypto.randomBytes(3).toString('hex').toUpperCase(); // HEX
+        /**
+         * Generar un código de verificación aleatorio de 6 caracteres en hexadecimal
+         */
+        const codigo = crypto.randomBytes(3).toString('hex').toUpperCase();
 
-        const expiry = Date.now() + 15 * 60 * 1000; // 15 minutos
+        /**
+         * Establecer tiempo de expiración del código en 15 minutos
+         */
+        const expiry = Date.now() + 15 * 60 * 1000;
 
+        /**
+         * Almacenar el código y su tiempo de expiración en el documento del usuario
+         */
         await userDoc.ref.update({ resetCode: codigo, resetExpiry: expiry });
 
-        // Configurar transporter con variables de entorno
+        /**
+         * Configurar el transportador de correo con las credenciales SMTP
+         */
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 465,
@@ -222,6 +301,9 @@ const solicitarCambioContrasena = async (req, res) => {
             }
         });
 
+        /**
+         * Configurar el contenido del correo electrónico con el código de verificación
+         */
         const mailOptions = {
             from: `"Soporte" <${process.env.SMTP_USER}>`,
             to: correo,
@@ -272,10 +354,16 @@ const solicitarCambioContrasena = async (req, res) => {
             `
         };
 
+        /**
+         * Verificar la conexión con el servidor SMTP antes de enviar
+         */
         await transporter.verify().then(() => {
             console.log('Listo para enviar correos');
         });
 
+        /**
+         * Enviar el correo electrónico con el código de verificación
+         */
         await transporter.sendMail(mailOptions);
         res.json({ success: true, message: 'Código enviado al correo' });
 
@@ -285,44 +373,70 @@ const solicitarCambioContrasena = async (req, res) => {
     }
 }
 
-// Cambiar la contraseña usando el código enviado
+/**
+ * Controlador para cambiar la contraseña usando el código de verificación
+ * Valida el código, verifica su expiración y actualiza la contraseña
+ */
 const cambiarContrasena = async (req, res) => {
     try {
         let { correo, codigo, nuevaContrasena } = req.body || {};
 
-        // let correo = 'richardgalo2003@gmail.com';
-        // let codigo = 'E0161F';
-        // let nuevaContrasena = 'richard';
-
+        /**
+         * Validar que todos los campos requeridos estén presentes
+         */
         if (!correo || !codigo || !nuevaContrasena) {
             return res.status(400).json({ success: false, error: 'Faltan campos requeridos' });
         }
 
+        /**
+         * Normalizar el correo electrónico a minúsculas y eliminar espacios
+         */
         correo = correo.toLowerCase().trim();
 
+        /**
+         * Buscar el usuario por correo electrónico en la base de datos
+         */
         const userQuery = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
         if (userQuery.empty) return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
 
         const userDoc = userQuery.docs[0];
         const data = userDoc.data() || {};
 
+        /**
+         * Verificar que exista un código de verificación solicitado
+         */
         if (!data.resetCode || !data.resetExpiry) {
             return res.status(400).json({ success: false, error: 'No hay un código solicitado' });
         }
 
+        /**
+         * Validar que el código proporcionado coincida con el almacenado
+         */
         if (data.resetCode !== codigo) {
             return res.status(400).json({ success: false, error: 'Código inválido' });
         }
 
+        /**
+         * Verificar que el código no haya expirado
+         */
         if (Date.now() > data.resetExpiry) {
             return res.status(400).json({ success: false, error: 'Código expirado' });
         }
 
+        /**
+         * Hashear la nueva contraseña antes de almacenarla
+         */
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(nuevaContrasena, saltRounds);
 
+        /**
+         * Actualizar la contraseña y limpiar el código de verificación
+         */
         await userDoc.ref.update({ contrasena: hashedPassword, resetCode: null, resetExpiry: null });
 
+        /**
+         * Retornar confirmación de cambio de contraseña exitoso
+         */
         res.json({ success: true, message: 'Contraseña actualizada correctamente' });
 
     } catch (error) {
@@ -331,7 +445,7 @@ const cambiarContrasena = async (req, res) => {
     }
 }
 
-// Añadir las nuevas funciones a las exportaciones
+
 
 module.exports = {
     obtenerUser,

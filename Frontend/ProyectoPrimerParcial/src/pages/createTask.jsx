@@ -5,6 +5,10 @@ import { NavBar } from '../components/navBar';
 
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Función para obtener la lista de usuarios del sistema
+ * Realiza una petición GET al backend y retorna los datos de usuarios
+ */
 const obtenerUsuarios = async () => {
     try {
         const response = await fetch(url + "/user/obtenerUsers");
@@ -17,6 +21,10 @@ const obtenerUsuarios = async () => {
     }
 };
 
+/**
+ * Función para crear una nueva tarea en el sistema
+ * Envía los datos de la tarea al backend mediante una petición POST
+ */
 const crearTarea = async (taskData) => {
     try {
         const response = await fetch(url + "/task/crearTask", {
@@ -27,6 +35,9 @@ const crearTarea = async (taskData) => {
             body: JSON.stringify(taskData)
         });
 
+        /**
+         * Validar si la respuesta fue exitosa
+         */
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.error || `Error HTTP: ${response.status}`);
@@ -40,6 +51,10 @@ const crearTarea = async (taskData) => {
     }
 };
 
+/**
+ * Componente de página para crear nuevas tareas
+ * Permite a los usuarios con rol de jefe asignar tareas a empleados
+ */
 export const CreateTask = () => {
     const { usuario } = useAuth();
     const navigate = useNavigate();
@@ -57,6 +72,9 @@ export const CreateTask = () => {
         idJefe: usuario?.id || ''
     });
 
+    /**
+     * Efecto para cargar la lista de usuarios al montar el componente
+     */
     useEffect(() => {
         const fetchUsuarios = async () => {
             const data = await obtenerUsuarios();
@@ -66,6 +84,10 @@ export const CreateTask = () => {
         fetchUsuarios();
     }, []);
 
+    /**
+     * Maneja los cambios en los campos del formulario
+     * Actualiza el estado del formulario y limpia mensajes de error
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -76,13 +98,19 @@ export const CreateTask = () => {
         if (error) setError('');
     };
 
+    /**
+     * Maneja el envío del formulario para crear la tarea
+     * Valida los datos, envía la petición y redirige si es exitoso
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         setError('');
         
         try {
-           
+            /**
+             * Construir el objeto de datos de la tarea con formato ISO para la fecha
+             */
             const taskData = {
                 idEmpleado: formData.idEmpleado,
                 idJefe: formData.idJefe,
@@ -91,11 +119,16 @@ export const CreateTask = () => {
                 fechaLimite: new Date(formData.fechaLimite).toISOString()
             };
 
+            /**
+             * Intentar crear la tarea en el backend
+             */
             const resultado = await crearTarea(taskData);
             
+            /**
+             * Si la creación es exitosa, redirigir a la página principal
+             */
             if (resultado.success) {
                 console.log("Tarea creada exitosamente:", resultado.data);
-             
                 navigate('/home');
             } else {
                 setError('Error al crear la tarea');
@@ -108,10 +141,16 @@ export const CreateTask = () => {
         }
     };
 
+    /**
+     * Maneja la cancelación del formulario y regresa a la página principal
+     */
     const handleCancel = () => {
         navigate('/home');
     };
 
+    /**
+     * Mostrar pantalla de carga mientras se obtienen los usuarios
+     */
     if (loading) {
         return (
             <>

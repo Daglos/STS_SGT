@@ -4,6 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Función para registrar un nuevo usuario en el sistema
+ * Realiza una petición POST al backend con los datos del perfil y un rol predefinido
+ */
 const crearCuenta = async (nombre, apellido, email, password) => {
   const data = {
     idRol:"JN3KSuH83BfQrq314DHt",
@@ -35,6 +39,10 @@ const crearCuenta = async (nombre, apellido, email, password) => {
   }
 };
 
+/**
+ * Componente de página para el registro de nuevos usuarios
+ * Gestiona el formulario de captura de datos y la creación de la sesión inicial
+ */
 export const Register = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -43,6 +51,10 @@ export const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  /**
+   * Manejador para el envío del formulario de registro
+   * Invoca la creación de cuenta y, en caso de éxito, inicia sesión y redirige al home
+   */
   const handleRegister = async (e) => {
     e.preventDefault();
     
@@ -57,6 +69,9 @@ export const Register = () => {
     }
   };
 
+  /**
+   * Función para navegar de regreso a la pantalla de inicio de sesión
+   */
   const handleVolverLogin = () => {
     navigate('/login');
   };
@@ -67,6 +82,10 @@ export const Register = () => {
         <h1 className="login-title">Crear Cuenta</h1>
         <p className="login-subtitle">Únete a nosotros</p>
 
+        {/**
+         * Formulario de registro de usuario
+         * Captura nombre, apellido, correo y contraseña con validaciones básicas
+         */}
         <form className="login-form" onSubmit={handleRegister}>
           <div className="form-group">
             <label htmlFor="nombre">Nombre</label>
@@ -125,6 +144,9 @@ export const Register = () => {
             <span>o</span>
           </div>
 
+          {/**
+           * Botón de acción secundaria para usuarios que ya poseen credenciales
+           */}
           <button type="button" className="btn-crear-cuenta" onClick={handleVolverLogin}>
             Ya tengo cuenta
           </button>

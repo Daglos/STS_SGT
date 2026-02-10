@@ -1,4 +1,3 @@
-
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from "./context/authContext";
 import { useNavigate } from 'react-router-dom';
@@ -12,9 +11,19 @@ import { CreateTask } from './pages/createTask';
 import { ForgotPassword } from './pages/forgotPassword';
 import './less/index.less';
 
+/**
+ * Componente principal de la aplicación
+ * Maneja el enrutamiento y la redirección basada en el estado de autenticación del usuario
+ */
 function App() {
   const { usuario, login, logout, loading, isAuthenticated } = useAuth();
     const navigate=useNavigate()
+    
+    /**
+     * Efecto para redirigir al usuario según su estado de autenticación
+     * Si no hay usuario autenticado y no está cargando, redirige a login
+     * Si hay usuario autenticado, redirige a home
+     */
     useEffect(()=>{
         if (!usuario && !loading){
             navigate("/login")
@@ -23,6 +32,10 @@ function App() {
           navigate('/home')
         }
     },[usuario,login])
+
+  /**
+   * Definición de las rutas de la aplicación
+   */
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

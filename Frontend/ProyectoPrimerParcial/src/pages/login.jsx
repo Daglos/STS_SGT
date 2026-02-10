@@ -1,11 +1,13 @@
-
 import { useState } from 'react';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom'; 
 
-
 const url = import.meta.env.VITE_URL;
 
+/**
+ * Función para autenticar al usuario en el backend
+ * Envía las credenciales y retorna el resultado de la autenticación
+ */
 const logIn = async (email, password) => {
   const data = {
     correo: email,
@@ -13,6 +15,9 @@ const logIn = async (email, password) => {
   }
   
   try {
+    /**
+     * Realizar petición POST al endpoint de login
+     */
     const respuesta = await fetch(url + "/login/login", {
       method: "POST",
       headers: {                              
@@ -23,7 +28,9 @@ const logIn = async (email, password) => {
 
     const datos = await respuesta.json();
     
-  
+    /**
+     * Validar si la respuesta fue exitosa
+     */
     if (!respuesta.ok) {
       return { 
         error: true, 
@@ -45,6 +52,10 @@ const logIn = async (email, password) => {
   }
 }
 
+/**
+ * Componente de página de inicio de sesión
+ * Permite a los usuarios autenticarse en el sistema mediante correo y contraseña
+ */
 export const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -53,23 +64,34 @@ export const Login = () => {
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
+  /**
+   * Maneja el proceso de inicio de sesión
+   * Valida las credenciales y redirige al usuario si son correctas
+   */
   const handleLogin = async (e) => { 
     e.preventDefault();
     setMensaje({ tipo: '', texto: '' }); 
     setLoading(true);
     
+    /**
+     * Intentar autenticar al usuario con las credenciales proporcionadas
+     */
     const resultado = await logIn(email, password); 
     
+    /**
+     * Si la autenticación es exitosa, guardar usuario y redirigir a home
+     */
     if (!resultado.error && resultado.usuario) { 
       setMensaje({ tipo: 'success', texto: '¡Inicio de sesión exitoso!' });
       
-  
       setTimeout(() => {
         login(resultado.usuario); 
         navigate('/home'); 
       }, 1000);
     } else {
-    
+      /**
+       * Si hay error, mostrar mensaje de credenciales incorrectas
+       */
       setMensaje({ 
         tipo: 'error', 
         texto: resultado.mensaje || 'Credenciales incorrectas' 
@@ -79,10 +101,16 @@ export const Login = () => {
     setLoading(false);
   };
 
+  /**
+   * Redirige a la página de registro
+   */
   const handleCrearCuenta = () => {
     navigate('/register')
   };
 
+  /**
+   * Redirige a la página de recuperación de contraseña
+   */
   const handleOlvidastePassword = () => {
     navigate('/forgotPassword')
   };
@@ -129,7 +157,6 @@ export const Login = () => {
             ¿Olvidaste tu contraseña?
           </button>
 
-      
           {mensaje.texto && (
             <div className={`mensaje-login mensaje-${mensaje.tipo}`}>
               {mensaje.texto}
