@@ -78,14 +78,32 @@ const obtenerTaskPorIdJefe = async (req, res) => {
         const tasks = [];
 
         /**
-         * Construir el array con las tareas encontradas
+         * Recorrer tareas y buscar el empleado relacionado
          */
-        taskSnapshot.forEach(doc => {
+        for (const doc of taskSnapshot.docs) {
+
+            const tarea = doc.data();
+
+            let nombreEmpleado = "juan";
+
+            if (tarea.idEmpleado) {
+
+                const empleadoDoc = await db
+                    .collection("usuarios")
+                    .doc(tarea.idEmpleado)
+                    .get();
+
+                if (empleadoDoc.exists) {
+                    nombreEmpleado = empleadoDoc.data().nombre + " " + empleadoDoc.data().apellido;
+                }
+            }
+
             tasks.push({
                 id: doc.id,
-                ...doc.data()
+                ...tarea,
+                nombreEmpleado
             });
-        });
+        }
 
         /**
          * Retornar las tareas del usuario específico
@@ -101,6 +119,7 @@ const obtenerTaskPorIdJefe = async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 };
+
 
 /**
  * Controlador para obtener las tareas asignadas a un usuario específico
@@ -357,5 +376,6 @@ module.exports = {
     obtenerTaskPorIdJefe,
     crearTask,
     actualizarTask,
-    actualizarState
+    actualizarState,
+    obtenerNombreEmpleadoPorTaskId
 }

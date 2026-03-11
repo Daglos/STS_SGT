@@ -11,7 +11,7 @@ const url = import.meta.env.VITE_URL;
  * Componente de página principal (Home)
  * Muestra las tareas pendientes del usuario y gestiona el acceso a la creación e historial
  */
-export const Home = () => {
+export const JefeTaskDetail = () => {
     const { usuario, loading } = useAuth();
 
     const navigate = useNavigate()
@@ -24,27 +24,30 @@ export const Home = () => {
  * Realiza una petición GET al backend filtrando por ID de usuario
  */
     const obtenerTasks = async (idUsuario) => {
+        console.log("ID del usuario:", idUsuario);
+        console.log("Rol del usuario:", usuario.idRol);
+        if (!usuario.idRol == "QUwARFWEdbC3A7iCBMBX") {
+            return [];
+        }
         try {
-            const response = await fetch(url + `/task/obtenerTaskPorId?idUsuario=${idUsuario}`)
+            const response = await fetch(url + `/task/obtenerTaskPorIdJefe?idjefe=${idUsuario}`)
             const data = await response.json()
-            console.log("hola: "+data.data)
+            console.log(data.data)
             return data.data
         }
         catch (error) {
             console.log(error)
             return []
         }
-
-
-
     }
+
 
     /**
      * Funciones para gestionar la visibilidad del mensaje de "No hay tareas"
      * Actualizan el estado del label según la disponibilidad de tareas pendientes
      */
     const showLabelTagNoTasksDisponibles = () => {
-        setLabelNoTasksDisponibles("No tienes tareas pendientes a realizar")
+        setLabelNoTasksDisponibles("No haz asignado tareas")
     }
     const hideLabelTagNoTasksDisponibles = () => {
         setLabelNoTasksDisponibles("")
@@ -57,6 +60,10 @@ export const Home = () => {
      */
     useEffect(() => {
 
+        if (usuario.idRol !== "QUwARFWEdbC3A7iCBMBX") {
+            navigate("/home");
+            return;
+        }
 
         if (!loading && usuario?.id) {
             console.log(usuario)
@@ -114,17 +121,11 @@ export const Home = () => {
         <>
             <NavBar />
             <div className="home-container">
+                <button className="goToButton" onClick={() => { navigate("/home") }}>Volver</button>
                 {/**
               * Renderizar botón de creación solo si el usuario tiene el rol administrativo específico
               */}
                 {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={() => { navigate('/createTask') }}>Crear tareas</button> : <></>}
-                {
-                    /**
-                     * Renderizar botón de acceso a tareas asignadas solo si el usuario tiene el rol administrativo específico
-                     */
-                }
-                {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={() => { navigate('/jefeTaskDetail') }}>Ver tareas asignadas</button> : <></>}
-
                 <button className="goToButton" onClick={() => { navigate("/historyOfTask") }}>Mirar el historial de tareas realizadas</button>
 
                 <div className="tasks-container">
@@ -160,13 +161,27 @@ export const Home = () => {
                                                 }
                                             });
                                     }}>
-                                        
+
                                         <p className="task-title">
                                             {task.titulo}
                                         </p>
                                         <p className="task-description">
                                             {task.descripcion}
                                         </p>
+                                        {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <p className="task-employee">
+                                            Empleado asignado: {task.nombreEmpleado}
+                                        </p> : <></>}
+
+                                        {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="updateTaskButton" onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate('/updateTask',
+                                                {
+                                                    state: {
+                                                        task
+                                                    }
+                                                }
+                                            )
+                                        }}>Modificar tarea</button> : <></>}
 
 
                                     </div>

@@ -10,6 +10,7 @@ import { Register } from './pages/register';
 import { CreateTask } from './pages/createTask';
 import { ForgotPassword } from './pages/forgotPassword';
 import { UpdateTask } from './pages/updateTask';
+import { JefeTaskDetail } from './pages/jefeTaskDetail';
 import './less/index.less';
 
 /**
@@ -41,6 +42,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/taskDetail" element={<TaskDetail/>}/>
+      <Route path="/jefeTaskDetail" element={<JefeTaskDetail/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path='/forgotPassword' element={<ForgotPassword/>}/>
       <Route path="/createTask" element={<CreateTask/>}/>
