@@ -26,16 +26,18 @@ const crearCuenta = async (nombre, apellido, email, password) => {
       body: JSON.stringify(data)
     });
 
+    const datos = await respuesta.json();
+
     if (!respuesta.ok) {
-      throw new Error(`Error HTTP: ${respuesta.status}`);
+      const mensajeServidor = datos.error || datos.message || `Error HTTP: ${respuesta.status}`;
+      return { error: mensajeServidor };
     }
 
-    const datos = await respuesta.json();
-    return datos.data;
+    return { data: datos.data };
 
   } catch (error) {
     console.error("Ocurrió un error al crear la cuenta:", error.message);
-    return null;
+    return { error: error.message };
   }
 };
 
@@ -50,6 +52,7 @@ export const Register = () => {
   const [apellido, setApellido] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   /**
    * Manejador para el envío del formulario de registro
@@ -58,15 +61,25 @@ export const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     
-    const usuario = await crearCuenta(nombre, apellido, email, password);
-    console.log(usuario)
-    if (usuario) {
-      login(usuario);
+    setErrorMessage('');
+    const respuesta = await crearCuenta(nombre, apellido, email, password);
+    console.log(respuesta)
+
+    if (respuesta && respuesta.data) {
+      login(respuesta.data);
       console.log("Cuenta creada exitosamente");
       navigate('/home');
-    } else {
-      console.log("Error al crear cuenta");
+      return;
     }
+
+    if (respuesta && respuesta.error) {
+      setErrorMessage(`Error al crear cuenta: ${respuesta.error}`);
+      console.log("Error al crear cuenta", respuesta.error);
+      return;
+    }
+
+    setErrorMessage('No se pudo crear la cuenta. Verifique los datos y vuelva a intentar.');
+    console.log("Error al crear cuenta");
   };
 
   /**
@@ -128,13 +141,21 @@ export const Register = () => {
             <input
               type="password"
               id="password"
-              placeholder="••••••••"
+              placeholder="••••••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={12}
+              title="Mínimo 12 caracteres con mayúsculas, minúsculas, números y símbolos"
             />
+            <small>Al menos 12 caracteres, mayúsculas, minúsculas, números y caracteres especiales.</small>
           </div>
+
+          {errorMessage && (
+            <div className="error-message" style={{ color: 'red', marginBottom: '12px' }}>
+              {errorMessage}
+            </div>
+          )}
 
           <button type="submit" className="btn-login">
             Crear Cuenta
