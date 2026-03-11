@@ -3,6 +3,30 @@ const nodemailer = require('nodemailer')
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
+const validarContrasena = (contrasena) => {
+    const minLen = 12;
+    const hasUpper = /[A-Z]/.test(contrasena);
+    const hasLower = /[a-z]/.test(contrasena);
+    const hasDigit = /[0-9]/.test(contrasena);
+    const hasSpecial = /[^A-Za-z0-9]/.test(contrasena);
+    const noSpaces = !/\s/.test(contrasena);
+
+    return contrasena &&
+        contrasena.length >= minLen &&
+        hasUpper &&
+        hasLower &&
+        hasDigit &&
+        hasSpecial &&
+        noSpaces;
+};
+
+const validarFechaFutura = (fecha) => {
+    const target = new Date(fecha);
+    if (Number.isNaN(target.getTime())) return false;
+    const ahora = new Date();
+    return target.getTime() > ahora.getTime();
+};
+
 /**
  * Controlador para obtener todos los usuarios del sistema
  * Recupera la lista completa de usuarios desde Firebase y los retorna en formato JSON
@@ -10,7 +34,7 @@ const bcrypt = require('bcrypt');
 const obtenerUser = async (req, res) => {
     try {
         /**
-         * Obtener todos los documentos de la colección de usuarios
+         * Obtiene todos los documentos de la colección de usuarios
          */
         const userSnapshot = await db.collection('usuarios').get()
         console.log(userSnapshot)
@@ -64,6 +88,27 @@ const crearUser = async (req, res) => {
          * Normalizar el correo electrónico a minúsculas y eliminar espacios
          */
         correo = correo.toLowerCase().trim();
+
+        /**
+         * Validar que el correo no exista aún
+         */
+        const emailExistente = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
+        if (!emailExistente.empty) {
+            return res.status(409).json({
+                success: false,
+                error: 'Ya existe un usuario con ese correo'
+            });
+        }
+
+        /**
+         * Validar complejidad de contraseña
+         */
+        if (!validarContrasena(contrasena)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Contraseña debe tener al menos 12 caracteres, minúsculas, mayúsculas, números y caracteres especiales, sin espacios'
+            });
+        }
 
         /**
          * Hashear la contraseña antes de almacenarla
@@ -138,8 +183,32 @@ const actualizarUser = async (req, res) => {
          */
         const updatedData = {};
 
-        if (correo !== undefined) updatedData.correo = correo;
-        if (contrasena !== undefined) updatedData.contrasena = contrasena;
+        if (correo !== undefined) {
+            const nuevoCorreo = correo.toLowerCase().trim();
+            const existe = await db.collection('usuarios').where('correo', '==', nuevoCorreo).limit(1).get();
+            if (!existe.empty) {
+                const encontrado = existe.docs[0];
+                if (encontrado.id !== id) {
+                    return res.status(409).json({
+                        success: false,
+                        error: 'El correo ya está en uso por otro usuario'
+                    });
+                }
+            }
+            updatedData.correo = nuevoCorreo;
+        }
+
+        if (contrasena !== undefined) {
+            if (!validarContrasena(contrasena)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Contraseña debe tener al menos 12 caracteres, minúsculas, mayúsculas, números y caracteres especiales, sin espacios'
+                });
+            }
+            const saltRounds = 10;
+            updatedData.contrasena = await bcrypt.hash(contrasena, saltRounds);
+        }
+
         if (nombre !== undefined) updatedData.nombre = nombre;
         if (apellido !== undefined) updatedData.apellido = apellido;
         if (idRol !== undefined) updatedData.idRol = idRol;
@@ -152,13 +221,6 @@ const actualizarUser = async (req, res) => {
                 success: false,
                 error: "No se enviaron datos para actualizar"
             });
-        }
-
-        /**
-         * Actualizar la contraseña en Firebase Auth si se proporcionó
-         */
-        if (contrasena) {
-            await auth.updateUser(id, { password: contrasena });
         }
 
         /**
