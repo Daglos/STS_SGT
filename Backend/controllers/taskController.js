@@ -41,7 +41,7 @@ const obtenerTasks = async (req, res) => {
 
 /**
  * Controlador para buscar y filtrar tareas
- * Permite filtrar por estado, fecha límite, usuario asignado o título
+ * Permite filtrar por usuario y estado 
  */
 
 const filtrarTasks = async (req, res) => {}
