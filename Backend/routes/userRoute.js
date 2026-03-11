@@ -1,61 +1,26 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
+const { verificarToken, verificarRol } = require('../middleware/AuthMiddleware');
 
-const {obtenerUser, crearUser, actualizarUser, actualizarState, solicitarCambioContrasena, cambiarContrasena} = require('../controllers/userController')
+const {
+  obtenerUser, crearUser, actualizarUser, actualizarState,
+  solicitarCambioContrasena, cambiarContrasena
+} = require('../controllers/userController');
 
-/**
- * Ruta de prueba para verificar que el módulo esté funcionando
- */
-router.get('/', (req, res) => {
-  res.send('Archivo user funcionando' )
-})
+// Solo usuarios autenticados pueden ver la lista de usuarios
+router.get('/obtenerUsers', verificarToken, verificarRol(['admin']), obtenerUser);
 
-/**
- * Ruta para obtener todos los usuarios del sistema
- * Método: GET
- * Endpoint: /obtenerUsers
- * Controlador: obtenerUser
- */
-router.get('/obtenerUsers',obtenerUser)
+// Crear usuario solo por admins
+router.post('/crearUsers', verificarToken, verificarRol(['admin']), crearUser);
 
-/**
- * Ruta para crear un nuevo usuario
- * Método: POST
- * Endpoint: /crearUsers
- * Controlador: crearUser
- */
-router.post('/crearUsers',crearUser)
+// Actualizar usuario
+router.put('/actualizarUsers', verificarToken, verificarRol(['admin']), actualizarUser);
 
-/**
- * Ruta para actualizar los datos de un usuario
- * Método: PUT
- * Endpoint: /actualizarUsers
- * Controlador: actualizarUser
- */
-router.put('/actualizarUsers',actualizarUser)
+// Cambiar estado de usuario
+router.put('/actualizarState', verificarToken, verificarRol(['admin']), actualizarState);
 
-/**
- * Ruta para actualizar el estado de un usuario
- * Método: PUT
- * Endpoint: /actualizarState
- * Controlador: actualizarState
- */
-router.put('/actualizarState',actualizarState)
+// Solicitar cambio de contraseña no requiere token
+router.post('/solicitarCambioContrasena', solicitarCambioContrasena);
+router.put('/cambiarContrasena', cambiarContrasena);
 
-/**
- * Ruta para solicitar un código de verificación para cambio de contraseña
- * Método: POST
- * Endpoint: /solicitarCambioContrasena
- * Controlador: solicitarCambioContrasena
- */
-router.post('/solicitarCambioContrasena', solicitarCambioContrasena)
-
-/**
- * Ruta para cambiar la contraseña usando el código de verificación
- * Método: PUT
- * Endpoint: /cambiarContrasena
- * Controlador: cambiarContrasena
- */
-router.put('/cambiarContrasena', cambiarContrasena)
-
-module.exports = router
+module.exports = router;
