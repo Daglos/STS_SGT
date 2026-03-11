@@ -44,6 +44,8 @@ const obtenerTasks = async (req, res) => {
  * Permite filtrar por estado, fecha límite, usuario asignado o título
  */
 
+const filtrarTasks = async (req, res) => {}
+
 /**
  * Controlador para obtener las tareas asignadas a un usuario específico
  * Filtra las tareas por ID de empleado y retorna solo las que le corresponden
