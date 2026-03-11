@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavBar } from "../components/navBar";
+import { useAuth } from "../context/authContext";
 const url = import.meta.env.VITE_URL;
 
 /**
@@ -12,8 +13,10 @@ export const TaskDetail = () => {
     const navigate = useNavigate();
     const { task } = location.state || {};
     
+    const { usuario} = useAuth();
     const [taskState, setTaskState] = useState(task);
     const [loading, setLoading] = useState(false);
+    
 
     /**
      * Función para actualizar el estado de la tarea a "inactivo"
@@ -158,6 +161,7 @@ export const TaskDetail = () => {
                                 ? 'Completada' 
                                 : 'Marcar como Completada'}
                     </button>
+                    
                 </div>
             </div>
         </div>

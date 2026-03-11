@@ -47,6 +47,62 @@ const obtenerTasks = async (req, res) => {
 }
 
 /**
+ * Controlador para buscar y filtrar tareas
+ * Permite filtrar por usuario y estado 
+ */
+
+const filtrarTasks = async (req, res) => {}
+
+/**
+ * Controlador para obtener las tareas que un usuario jefe asignó a sus empleados
+ * Filtra las tareas por ID de jefe y retorna solo las que le corresponden
+ */
+const obtenerTaskPorIdJefe = async (req, res) => {
+    try {
+        const { idjefe } = req.query;
+
+        /**
+         * Validar que se proporcione el ID del usuario
+         */
+        if (!idjefe) {
+            return res.status(400).json({
+                success: false,
+                error: "Falta el ID del jefe"
+            });
+        }
+
+        /**
+         * Consultar las tareas filtradas por el ID del empleado
+         */
+        const taskSnapshot = await db.collection('tareas').where('idJefe', '==', idjefe).get();
+        const tasks = [];
+
+        /**
+         * Construir el array con las tareas encontradas
+         */
+        taskSnapshot.forEach(doc => {
+            tasks.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+
+        /**
+         * Retornar las tareas del usuario específico
+         */
+        return res.json({
+            success: true,
+            data: tasks,
+            total: tasks.length
+        });
+
+    } catch (error) {
+        console.error('Error al obtener tareas:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+/**
  * Controlador para obtener las tareas asignadas a un usuario específico
  * Filtra las tareas por ID de empleado y retorna solo las que le corresponden
  */
@@ -167,7 +223,7 @@ const crearTask = async (req, res) => {
  */
 const actualizarTask = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.query;
         const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado } = req.body || {};
 
         /**
@@ -298,6 +354,7 @@ const actualizarState = async (req, res) => {
 module.exports = {
     obtenerTasks,
     obtenerTaskPorId,
+    obtenerTaskPorIdJefe,
     crearTask,
     actualizarTask,
     actualizarState
