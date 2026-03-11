@@ -10,6 +10,7 @@ export const NavBar = () => {
         { path: '/home', label: 'Inicio' },
         { path: '/createTask', label: 'Crear Tarea' },
         { path: '/historyOfTask', label: 'Historial' },
+        { path: '/jefeTaskDetail', label: 'Tareas Asignadas' },
     ];
 
     return (
@@ -23,6 +24,9 @@ export const NavBar = () => {
                     {navItems.map(item => {
 
                         if (item.path === "/createTask" && usuario?.idRol !== "QUwARFWEdbC3A7iCBMBX") {
+                            return null;
+                        }
+                        if (item.path === "/jefeTaskDetail" && usuario?.idRol !== "QUwARFWEdbC3A7iCBMBX") {
                             return null;
                         }
 

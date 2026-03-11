@@ -114,18 +114,6 @@ export const Home = () => {
         <>
             <NavBar />
             <div className="home-container">
-                {/**
-              * Renderizar botón de creación solo si el usuario tiene el rol administrativo específico
-              */}
-                {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={() => { navigate('/createTask') }}>Crear tareas</button> : <></>}
-                {
-                    /**
-                     * Renderizar botón de acceso a tareas asignadas solo si el usuario tiene el rol administrativo específico
-                     */
-                }
-                {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={() => { navigate('/jefeTaskDetail') }}>Ver tareas asignadas</button> : <></>}
-
-                <button className="goToButton" onClick={() => { navigate("/historyOfTask") }}>Mirar el historial de tareas realizadas</button>
 
                 <div className="tasks-container">
                     {/**

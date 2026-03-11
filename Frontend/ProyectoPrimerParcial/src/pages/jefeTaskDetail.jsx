@@ -121,12 +121,6 @@ export const JefeTaskDetail = () => {
         <>
             <NavBar />
             <div className="home-container">
-                <button className="goToButton" onClick={() => { navigate("/home") }}>Volver</button>
-                {/**
-              * Renderizar botón de creación solo si el usuario tiene el rol administrativo específico
-              */}
-                {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="createTaskButton" onClick={() => { navigate('/createTask') }}>Crear tareas</button> : <></>}
-                <button className="goToButton" onClick={() => { navigate("/historyOfTask") }}>Mirar el historial de tareas realizadas</button>
 
                 <div className="tasks-container">
                     {/**
