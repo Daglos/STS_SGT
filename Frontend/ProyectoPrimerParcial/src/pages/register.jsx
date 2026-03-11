@@ -10,7 +10,7 @@ const url = import.meta.env.VITE_URL;
  */
 const crearCuenta = async (nombre, apellido, email, password) => {
   const data = {
-    idRol:"JN3KSuH83BfQrq314DHt",
+    idRol:"QUwARFWEdbC3A7iCBMBX",
     nombre,
     apellido,
     correo: email,

@@ -158,6 +158,12 @@ export const TaskDetail = () => {
                                 ? 'Completada' 
                                 : 'Marcar como Completada'}
                     </button>
+                    <button 
+                        className="action-button primary"
+                        disabled={loading || taskState.estado === 'inactivo'}
+                    >
+                        Editar Tarea
+                    </button>
                 </div>
             </div>
         </div>
