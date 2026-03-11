@@ -9,6 +9,7 @@ import { TaskDetail } from './pages/taskDetail';
 import { Register } from './pages/register';
 import { CreateTask } from './pages/createTask';
 import { ForgotPassword } from './pages/forgotPassword';
+import { UpdateTask } from './pages/updateTask';
 import './less/index.less';
 
 /**
@@ -44,6 +45,7 @@ function App() {
       <Route path='/forgotPassword' element={<ForgotPassword/>}/>
       <Route path="/createTask" element={<CreateTask/>}/>
       <Route path="/historyOfTask" element={<HistoryOfTask/>}/>
+      <Route path="/updateTask" element={<UpdateTask/>}/>
       <Route path="/home" element={<Home/>}/>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
