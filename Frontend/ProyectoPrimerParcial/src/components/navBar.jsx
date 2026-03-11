@@ -29,7 +29,7 @@ export const NavBar = () => {
                         return (
                             <button
                                 key={item.path}
-                                className={nav-button ${location.pathname === item.path ? 'active' : ''}}
+                                className={`nav-button ${location.pathname === item.path ? 'active' : ''}`}
                                 onClick={() => navigate(item.path)}
                             >
                                 {item.label}
