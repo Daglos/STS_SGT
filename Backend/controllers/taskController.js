@@ -1,5 +1,12 @@
 const { db } = require('../config/firebase')
 
+const validarFechaFutura = (fecha) => {
+    const target = new Date(fecha);
+    if (Number.isNaN(target.getTime())) return false;
+    const ahora = new Date();
+    return target.getTime() > ahora.getTime();
+};
+
 /**
  * Controlador para obtener todas las tareas del sistema
  * Recupera la lista completa de tareas desde Firebase y las retorna en formato JSON
@@ -107,6 +114,16 @@ const crearTask = async (req, res) => {
         }
 
         /**
+         * Validar que la fecha límite no sea pasada
+         */
+        if (!validarFechaFutura(fechaLimite)) {
+            return res.status(400).json({
+                success: false,
+                error: 'La fecha límite debe ser una fecha futura'
+            })
+        }
+
+        /**
          * Construir el objeto de la nueva tarea con estado inicial
          */
         const newTask = {
@@ -172,7 +189,15 @@ const actualizarTask = async (req, res) => {
         if (idJefe !== undefined) updatedData.idJefe = idJefe;
         if (titulo !== undefined) updatedData.titulo = titulo;
         if (descripcion !== undefined) updatedData.descripcion = descripcion;
-        if (fechaLimite !== undefined) updatedData.fechaLimite = fechaLimite;
+        if (fechaLimite !== undefined) {
+            if (!validarFechaFutura(fechaLimite)) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'La fecha límite debe ser una fecha futura'
+                });
+            }
+            updatedData.fechaLimite = fechaLimite;
+        }
         if (estado !== undefined) updatedData.estado = estado;
 
         /**
