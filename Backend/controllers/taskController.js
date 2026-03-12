@@ -377,5 +377,4 @@ module.exports = {
     crearTask,
     actualizarTask,
     actualizarState,
-    obtenerNombreEmpleadoPorTaskId
 }
