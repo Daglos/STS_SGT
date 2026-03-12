@@ -18,19 +18,26 @@ export const NavBar = () => {
                 <div className="navbar-brand" onClick={() => navigate('/home')}>
                     <span className="brand-text">Tareas</span>
                 </div>
-                
+
                 <div className="navbar-nav">
-                    {navItems.map(item => (
-                        <button 
-                            key={item.path}
-                            className={`nav-button ${location.pathname === item.path ? 'active' : ''}`}
-                            onClick={() => navigate(item.path)}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
+                    {navItems.map(item => {
+
+                        if (item.path === "/createTask" && usuario?.idRol !== "QUwARFWEdbC3A7iCBMBX") {
+                            return null;
+                        }
+
+                        return (
+                            <button
+                                key={item.path}
+                                className={nav-button ${location.pathname === item.path ? 'active' : ''}}
+                                onClick={() => navigate(item.path)}
+                            >
+                                {item.label}
+                            </button>
+                        );
+                    })}
                 </div>
-                
+
                 <div className="navbar-user">
                     <div className="user-info">
                         <div className="user-avatar">
@@ -38,7 +45,7 @@ export const NavBar = () => {
                         </div>
                         <span className="user-name">{usuario?.nombre || 'Usuario'} {usuario?.apellido || ''}</span>
                     </div>
-                    
+
                     <button className="logout-button" onClick={logout}>
                         Cerrar sesión
                     </button>
