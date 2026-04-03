@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {obtenerTasks, obtenerTaskPorId, obtenerTaskPorIdJefe, crearTask, actualizarTask, actualizarState, obtenerNombreEmpleadoPorTaskId} = require('../controllers/taskController')
+const {obtenerTasks, obtenerTaskPorId, obtenerTaskPorIdJefe, crearTask, actualizarTask, actualizarState} = require('../controllers/taskController')
 
 /**
  * Ruta de prueba para verificar que el módulo esté funcionando
@@ -18,7 +18,6 @@ router.get('/', (req, res) => {
  */
 router.get('/obtenerTasks',obtenerTasks)
 
-router.get('/obtenerNombreEmpleadoPorTaskId', obtenerNombreEmpleadoPorTaskId)
 
 /**
  * Ruta para obtener las tareas de un usuario específico

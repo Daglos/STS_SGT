@@ -6,6 +6,20 @@ const validarFechaFutura = (fecha) => {
     const ahora = new Date();
     return target.getTime() > ahora.getTime();
 };
+/**
+ * Controlador para categorizar las tareas por prioridad 
+ * Toma en consideración la carga y la fecha limite
+ */
+const calcularPrioridad = (fechaLimite, carga) => {
+    const hoy = new Date();
+    const fecha = new Date(fechaLimite);
+
+    const dias = Math.ceil((fecha - hoy) / (1000 * 60 * 60 * 24));
+
+    if (dias <= 2 || carga >= 5) return 'Alta';
+    if (dias <= 5 || carga >= 3) return 'Media';
+    return 'Baja';
+};
 
 /**
  * Controlador para obtener todas las tareas del sistema
@@ -51,7 +65,7 @@ const obtenerTasks = async (req, res) => {
  * Permite filtrar por usuario y estado 
  */
 
-const filtrarTasks = async (req, res) => {}
+const filtrarTasks = async (req, res) => { }
 
 /**
  * Controlador para obtener las tareas que un usuario jefe asignó a sus empleados
@@ -176,7 +190,7 @@ const obtenerTaskPorId = async (req, res) => {
  */
 const crearTask = async (req, res) => {
     try {
-        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite} = req.body || {}
+        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {}
 
         /**
          * Validar que todos los campos requeridos estén presentes
@@ -198,6 +212,17 @@ const crearTask = async (req, res) => {
             })
         }
 
+        // Obtener tareas activas del empleado
+        const tareasEmpleado = await db
+            .collection('tareas')
+            .where('idEmpleado', '==', idEmpleado)
+            .where('estado', '==', 'activo')
+            .get();
+
+        const carga = tareasEmpleado.size;
+
+        const prioridad = calcularPrioridad(fechaLimite, carga);
+
         /**
          * Construir el objeto de la nueva tarea con estado inicial
          */
@@ -207,7 +232,8 @@ const crearTask = async (req, res) => {
             titulo,
             descripcion,
             fechaLimite,
-            estado: 'activo'
+            estado: 'activo',
+            prioridad
         }
 
         /**
@@ -228,7 +254,7 @@ const crearTask = async (req, res) => {
         })
     }
     catch (error) {
-        console.error('Error al agregar la tarea:', error)  
+        console.error('Error al agregar la tarea:', error)
         res.status(500).json({
             success: false,
             error: error.message
@@ -316,7 +342,7 @@ const actualizarTask = async (req, res) => {
 const actualizarState = async (req, res) => {
     try {
         const { id } = req.query;
-        const { estado} = req.body || {};
+        const { estado } = req.body || {};
 
         /**
          * Validar que se proporcione el ID de la tarea
