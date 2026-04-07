@@ -15,7 +15,7 @@ const iniciarSesion = async (req, res) => {
         // Retornar la información del usuario en caso de éxito
         return res.status(200).json({
             success: true,
-            data: resultado
+            usuario: resultado
         });
 
     } catch (error) {

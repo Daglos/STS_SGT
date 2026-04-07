@@ -1,6 +1,5 @@
 const loginRepository = require('../repositories/loginRepository');
 const bcrypt = require('bcrypt');
-
 /**
  * Servicio para iniciar sesión en el sistema
  * Valida las credenciales del usuario y retorna información de sesión
@@ -21,7 +20,7 @@ const iniciarSesion = async (correo, contrasena) => {
     const usuario = await loginRepository.obtenerPorCorreo(correoNormalizado);
 
     if (!usuario) {
-        throw { status: 404, message: "Credenciales incorrectas" };
+        throw { status: 404, message: "Credenciales incorrectas2" };
     }
 
     // Validar la contraseña utilizando bcrypt
@@ -32,7 +31,7 @@ const iniciarSesion = async (correo, contrasena) => {
     }
 
     // Verificar que el usuario esté activo
-    if (usuario.estado !== "activo") {
+    if (usuario.estado !== true) {
         throw { status: 403, message: "Usuario inactivo" };
     }
 

@@ -1,12 +1,11 @@
-const db = require('../config/db');
+const { db } = require('../config/firebase');
 
 /**
  * Repositorio para manejar la lógica de acceso a datos relacionada con el login
  */
 const obtenerPorCorreo = async (correo) => {
     // Realizar una consulta a Firestore para obtener el usuario por correo
-    const querySnapshot = await db
-        .collection('usuarios')
+    const querySnapshot = await db.collection('usuarios')
         .where('correo', '==', correo)
         .limit(1)
         .get();
