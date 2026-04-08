@@ -87,7 +87,9 @@ const crearUser = async (req, res) => {
         /**
          * Normalizar el correo electrónico a minúsculas y eliminar espacios
          */
-        correo = correo.toLowerCase().trim();
+        const normalizarCorreo = (correo) => correo.toLowerCase().trim();
+
+        correo = normalizarCorreo(correo);
 
         /**
          * Validar que el correo no exista aún
@@ -141,6 +143,8 @@ const crearUser = async (req, res) => {
         /**
          * Retornar confirmación con los datos del usuario creado
          */
+        const { contrasena: _, ...userSafe } = newUser;
+
         res.status(201).json({
             success: true,
             message: 'Usuario agregado exitosamente',
