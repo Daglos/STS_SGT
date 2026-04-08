@@ -51,6 +51,7 @@ export const UpdateTask = () => {
                 ? new Date(task.fechaLimite).toISOString().slice(0,16)
                 : '',
             idEmpleado: task.idEmpleado || '',
+            prioridad: task.prioridad || 'Media',
             idJefe: task.idJefe || usuario?.id || '',
             estado: task.estado || 'activo'
         });
@@ -132,7 +133,8 @@ export const UpdateTask = () => {
                 idJefe: formData.idJefe,
                 titulo: formData.titulo,
                 descripcion: formData.descripcion,
-                fechaLimite: new Date(formData.fechaLimite).toISOString()
+                fechaLimite: new Date(formData.fechaLimite).toISOString(),
+                prioridad: formData.prioridad,
             };
 
             /**
@@ -301,6 +303,22 @@ export const UpdateTask = () => {
                                     required
                                     disabled={submitting}
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="prioridad">Prioridad *</label>
+                                <select
+                                    id="prioridad"
+                                    name="prioridad"
+                                    value={formData.prioridad}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={submitting}
+                                >
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
                             </div>
                         </div>
 

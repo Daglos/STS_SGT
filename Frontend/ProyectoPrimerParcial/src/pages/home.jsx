@@ -5,6 +5,20 @@ import { useState } from "react";
 import { NavBar } from "../components/navBar";
 const url = import.meta.env.VITE_URL;
 
+const PRIORIDAD_ORDEN = {
+    Alta: 0,
+    Media: 1,
+    Baja: 2,
+};
+
+const ordenarPorPrioridad = (tasks) => {
+    return [...tasks].sort((a, b) => {
+        const prioridadA = PRIORIDAD_ORDEN[a.prioridad] ?? Object.keys(PRIORIDAD_ORDEN).length;
+        const prioridadB = PRIORIDAD_ORDEN[b.prioridad] ?? Object.keys(PRIORIDAD_ORDEN).length;
+        return prioridadA - prioridadB;
+    });
+};
+
 
 
 /**
@@ -61,9 +75,8 @@ export const Home = () => {
         if (!loading && usuario?.id) {
             console.log(usuario)
             const fetchTasks = async () => {
-
                 const data = await obtenerTasks(usuario.id);
-                setTasks(data);
+                setTasks(ordenarPorPrioridad(data || []));
             };
             fetchTasks();
 
@@ -148,7 +161,9 @@ export const Home = () => {
                                                 }
                                             });
                                     }}>
-                                        
+                                        <span className={`priority-badge ${task.prioridad?.toLowerCase()}`}>
+                                            {task.prioridad || 'Sin prioridad'}
+                                        </span>
                                         <p className="task-title">
                                             {task.titulo}
                                         </p>

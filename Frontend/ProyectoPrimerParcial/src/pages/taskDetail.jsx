@@ -116,12 +116,14 @@ export const TaskDetail = () => {
             <div className="detail-card">
                 <div className="detail-header">
                     <h1 className="detail-title">{taskState.titulo}</h1>
-                    {/**
-                      * Badge dinámico que cambia de clase según el estado de la tarea
-                      */}
-                    <span className={`status-badge ${taskState.estado}`}>
-                        {taskState.estado === 'activo' ? 'Activo' : 'Inactivo'}
-                    </span>
+                    <div>
+                        <span className={`status-badge ${taskState.estado}`}>
+                            {taskState.estado === 'activo' ? 'Activo' : 'Inactivo'}
+                        </span>
+                        <span className={`priority-badge ${taskState.prioridad?.toLowerCase()}`}>
+                            {taskState.prioridad || 'Sin prioridad'}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="detail-content">

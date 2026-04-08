@@ -69,6 +69,7 @@ export const CreateTask = () => {
         descripcion: '',
         fechaLimite: '',
         idEmpleado: '',
+        prioridad: 'Media',
         idJefe: usuario?.id || ''
     });
 
@@ -116,7 +117,8 @@ export const CreateTask = () => {
                 idJefe: formData.idJefe,
                 titulo: formData.titulo,
                 descripcion: formData.descripcion,
-                fechaLimite: new Date(formData.fechaLimite).toISOString()
+                fechaLimite: new Date(formData.fechaLimite).toISOString(),
+                prioridad: formData.prioridad,
             };
 
             /**
@@ -238,6 +240,22 @@ export const CreateTask = () => {
                                     required
                                     disabled={submitting}
                                 />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="prioridad">Prioridad *</label>
+                                <select
+                                    id="prioridad"
+                                    name="prioridad"
+                                    value={formData.prioridad}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={submitting}
+                                >
+                                    <option value="Alta">Alta</option>
+                                    <option value="Media">Media</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
                             </div>
                         </div>
 
