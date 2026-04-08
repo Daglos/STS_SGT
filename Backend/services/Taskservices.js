@@ -154,10 +154,38 @@ const actualizarTareaPorId = async (id, body, camposPermitidos) => {
   };
 };
 
+
+
+
+const actualizarTareasVencidas = async (idUsuario) => {
+  if (!idUsuario) {
+    throw crearError(400, 'Falta el ID del empleado');
+  }
+
+  const tareas = await obtenerTareasPorEmpleado(idUsuario);
+
+  const tareasActualizadas = [];
+  const ahora = Date.now();
+
+  for (const tarea of tareas) {
+    const fechaLimite = new Date(tarea.fechaLimite);
+    const estaVencida = !Number.isNaN(fechaLimite.getTime()) && fechaLimite.getTime() < ahora;
+
+    if (estaVencida && tarea.estado !== 'inactivo' && tarea.estado !== 'retrasada') {
+      const tareaActualizada = await actualizarTareaPorId(tarea.id, { estado: 'retrasada' }, ['estado']);
+      tareasActualizadas.push(tareaActualizada);
+    }
+  }
+
+  console.log('Tareas vencidas actualizadas:', tareasActualizadas);
+  return tareasActualizadas;
+};
+
 module.exports = {
   obtenerTodasLasTareas,
   obtenerTareasPorEmpleado,
   obtenerTareasPorJefe,
   crearTarea,
   actualizarTareaPorId,
+  actualizarTareasVencidas,
 };
