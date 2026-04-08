@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
+import { TaskCard } from "../components/taskcard";
 const url = import.meta.env.VITE_URL;
 
 
@@ -60,22 +61,25 @@ export const JefeTaskDetail = () => {
      */
     useEffect(() => {
 
+        if (loading) return; // 👈 esperar a que cargue
+
+        if (!usuario) {
+            navigate("/");
+            return;
+        }
+
         if (usuario.idRol !== "QUwARFWEdbC3A7iCBMBX") {
             navigate("/home");
             return;
         }
 
-        if (!loading && usuario?.id) {
-            console.log(usuario)
+        if (usuario?.id) {
             const fetchTasks = async () => {
-
                 const data = await obtenerTasks(usuario.id);
                 setTasks(data);
             };
             fetchTasks();
-
         }
-
 
     }, [usuario, loading]);
 

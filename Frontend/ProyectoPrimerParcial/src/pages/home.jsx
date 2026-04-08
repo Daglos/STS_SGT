@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
+import { TaskCard } from "../components/taskcard";
 const url = import.meta.env.VITE_URL;
 
 
@@ -27,16 +28,29 @@ export const Home = () => {
         try {
             const response = await fetch(url + `/task/obtenerTaskPorId?idUsuario=${idUsuario}`)
             const data = await response.json()
-            console.log("hola: "+data.data)
             return data.data
         }
         catch (error) {
             console.log(error)
             return []
         }
+    }
 
+    const verificarTareas = async (idEmpleado) => {
+        try {
+            const response = await fetch(url + `/task/verificar-vencidas?idEmpleado=${idEmpleado}`, {
+                method: 'PUT',
+            });
 
+            if (!response.ok) {
+                console.error('Error al verificar tareas vencidas:', response.status)
+            }
 
+            return await response.json()
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
     }
 
     /**
@@ -66,6 +80,20 @@ export const Home = () => {
                 setTasks(data);
             };
             fetchTasks();
+
+            const verificarTareas = async () => {
+                try {
+                    await fetch(url + `/task/verificar-vencidas?idEmpleado=${usuario.id}`, {
+                        method: 'PUT'
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+
+            if (usuario) {
+                verificarTareas();
+            }
 
         }
 
@@ -110,60 +138,32 @@ export const Home = () => {
     if (!usuario) {
         return "";
     }
+
+    const tareasActivas = tasks.filter(task => task.estado === "activo");
+    const tareasEnCurso = tasks.filter(task => task.estado === "En Curso");
+    const tareasRetrasadas = tasks.filter(task => task.estado === "retrasada");
+
     return (
         <>
             <NavBar />
             <div className="home-container">
-
                 <div className="tasks-container">
-                    {/**
-                  * Mostrar mensaje de aviso si no hay tareas pendientes identificadas
-                  */}
-                    {labelNoTasksDisponibles == "" ? <></> : <h2>{labelNoTasksDisponibles}</h2>}
+                    {labelNoTasksDisponibles && <h2>{labelNoTasksDisponibles}</h2>}
 
-                    {
+                    <h2>Tareas Pendientes</h2>
+                    {tareasActivas.map(task => (
+                        <TaskCard key={task.id} task={task} />
+                    ))}
 
-                        /**
-                         * Iterar sobre las tareas y renderizar solo las que están en estado activo
-                         * Ignora tareas inactivas, nulas o sin estado definido
-                         */
-                        tasks.map((task) => {
-                            if (task.estado == null || task.estado == undefined || task.estado == "inactivo") {
-                                return
-                            }
-                            else {
-                                return (
+                    <h2>Tareas En Curso</h2>
+                    {tareasEnCurso.map(task => (
+                        <TaskCard key={task.id} task={task} />
+                    ))}
 
-
-
-                                    /**
-                                     * Renderizar tarjeta de tarea con navegación al detalle
-                                     * Envía el objeto de la tarea a través del estado de navegación
-                                     */
-                                    <div className="task-card" key={task.id} onClick={() => {
-                                        navigate('/taskDetail',
-                                            {
-                                                state: {
-                                                    task
-                                                }
-                                            });
-                                    }}>
-                                        
-                                        <p className="task-title">
-                                            {task.titulo}
-                                        </p>
-                                        <p className="task-description">
-                                            {task.descripcion}
-                                        </p>
-
-
-                                    </div>
-
-                                )
-                            }
-
-                        })}
-
+                    <h2>Tareas Retrasadas</h2>
+                    {tareasRetrasadas.map(task => (
+                        <TaskCard key={task.id} task={task} />
+                    ))}
                 </div>
             </div>
         </>

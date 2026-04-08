@@ -52,7 +52,7 @@ export const UpdateTask = () => {
                 : '',
             idEmpleado: task.idEmpleado || '',
             idJefe: task.idJefe || usuario?.id || '',
-            estado: task.estado || 'activo'
+            estado: task.estado || ''
         });
     }
 }, [task, usuario]);
@@ -127,12 +127,21 @@ export const UpdateTask = () => {
             /**
              * Construir el objeto de datos de la tarea con formato ISO para la fecha
              */
+            if (task.estado === "retrasada") {
+                formData.estado = "Activo"
+            }
+
+            if (task.estado === "inactivo") {
+                throw new Error("No se puede actualizar una tarea inactiva");
+            }
+
             const taskData = {
                 idEmpleado: formData.idEmpleado,
                 idJefe: formData.idJefe,
                 titulo: formData.titulo,
                 descripcion: formData.descripcion,
-                fechaLimite: new Date(formData.fechaLimite).toISOString()
+                fechaLimite: new Date(formData.fechaLimite).toISOString(),
+                estado: formData.estado,
             };
 
             /**

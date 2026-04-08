@@ -22,9 +22,16 @@ export const TaskDetail = () => {
      * Función para actualizar el estado de la tarea a "inactivo"
      * Realiza una petición PUT al servidor y actualiza el estado local tras el éxito
      */
-    const markAsCompleted = async () => {
+    const cambiarEstado = async () => {
         try {
             setLoading(true);
+            let newState = "activo"
+
+            if(taskState.estado === "activo"){
+                newState = "En Curso"
+            }else if(taskState.estado === "En Curso"){
+                newState = "inactivo"
+            }
             
             const response = await fetch(url + `/task/actualizarState?id=${taskState.id}`, {
                 method: "PUT",
@@ -32,7 +39,7 @@ export const TaskDetail = () => {
                     "Content-Type": "application/json",
                 },
             
-                body: JSON.stringify({ estado: "inactivo" })
+                body: JSON.stringify({ estado: newState })
             });
 
             if (!response.ok) {
@@ -44,7 +51,7 @@ export const TaskDetail = () => {
 
             setTaskState({
                 ...taskState,
-                estado: "inactivo"
+                estado: newState
             });
 
     
@@ -120,7 +127,7 @@ export const TaskDetail = () => {
                       * Badge dinámico que cambia de clase según el estado de la tarea
                       */}
                     <span className={`status-badge ${taskState.estado}`}>
-                        {taskState.estado === 'activo' ? 'Activo' : 'Inactivo'}
+                        {taskState.estado}
                     </span>
                 </div>
 
@@ -140,7 +147,11 @@ export const TaskDetail = () => {
                     <div className="detail-section">
                         <h3 className="section-label">Estado</h3>
                         <p className="section-text status-text">
-                            {taskState.estado === 'activo' ? 'Tarea Activa' : 'Tarea Inactiva'}
+                            {taskState.estado === 'activo'
+                                ? 'Tarea Activa'
+                                : taskState.estado === 'En Curso'
+                                ? 'Tarea En Curso'
+                                : 'Tarea Inactiva'}
                         </p>
                     </div>
                 </div>
@@ -152,14 +163,16 @@ export const TaskDetail = () => {
                       */}
                     <button 
                         className="action-button primary" 
-                        onClick={markAsCompleted}
+                        onClick={cambiarEstado}
                         disabled={loading || taskState.estado === 'inactivo'}
                     >
                         {loading 
                             ? 'Actualizando...' 
-                            : taskState.estado === 'inactivo' 
-                                ? 'Completada' 
-                                : 'Marcar como Completada'}
+                            : taskState.estado === 'activo'
+                                ? 'Iniciar Tarea'
+                                : taskState.estado === 'En Curso'
+                                ? 'Completar Tarea'
+                                : 'Tarea Inactiva'}
                     </button>
                     
                 </div>

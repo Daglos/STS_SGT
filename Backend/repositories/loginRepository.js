@@ -5,7 +5,8 @@ const { db } = require('../config/firebase');
  */
 const obtenerPorCorreo = async (correo) => {
     // Realizar una consulta a Firestore para obtener el usuario por correo
-    const querySnapshot = await db.collection('usuarios')
+    const querySnapshot = await db
+        .collection('usuarios')
         .where('correo', '==', correo)
         .limit(1)
         .get();

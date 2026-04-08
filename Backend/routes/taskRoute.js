@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const {obtenerTasks, obtenerTaskPorId, obtenerTaskPorIdJefe, crearTask, actualizarTask, actualizarState} = require('../controllers/taskController')
+const {obtenerTasks, obtenerTaskPorId, obtenerTaskPorIdJefe, crearTask, actualizarTask, actualizarState, actualizarTareasVencidas} = require('../controllers/taskController')
 
 /**
  * Ruta de prueba para verificar que el módulo esté funcionando
@@ -58,6 +58,15 @@ router.put('/actualizarTask',actualizarTask)
  * Controlador: actualizarState
  */
 router.put('/actualizarState',actualizarState)
+
+/**
+ * Ruta para verificar y actualizar el estado de las tareas vencidas
+ * Método: PUT
+ * Endpoint: /verificar-vencidas
+ * Controlador: actualizarTareasVencidas
+ */
+
+router.put('/verificar-vencidas', actualizarTareasVencidas);
 
 
 module.exports = router

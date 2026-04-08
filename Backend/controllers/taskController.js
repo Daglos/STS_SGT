@@ -79,6 +79,32 @@ const obtenerTaskPorId = async (req, res) => {
   }
 };
 
+
+const actualizarTareasVencidas = async (req, res) => {
+  const { idEmpleado } = req.query;
+
+  if (!idEmpleado) {
+    return res.status(400).json({
+      success: false,
+      error: 'Falta el ID del empleado',
+    });
+  }
+
+  try {
+    const resultado = await taskService.actualizarTareasVencidas(idEmpleado);
+    console.log('Tareas vencidas actualizadas:', resultado);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Tareas vencidas actualizadas',
+      data: resultado,
+    });
+  } catch (error) {
+    console.error(error);
+    return manejarError(res, error, 'Error al actualizar tareas vencidas');
+  }
+};
+
 const crearTask = async (req, res) => {
   try {
     const nuevaTarea = await taskService.crearTarea(req.body);
@@ -146,4 +172,5 @@ module.exports = {
   crearTask,
   actualizarTask,
   actualizarState,
+  actualizarTareasVencidas,
 };
