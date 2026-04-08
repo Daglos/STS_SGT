@@ -2,14 +2,28 @@ const { db } = require('../config/firebase');
 const {
   crearError,
   validarFechaFutura,
-  calcularPrioridad,
+  validarPrioridad,
   mapearTarea,
   construirActualizacion,
 } = require('../Utils/Taskutils');
 
+const PRIORIDAD_ORDEN = {
+  Alta: 0,
+  Media: 1,
+  Baja: 2,
+};
+
 const COLECCIONES = {
   TAREAS: 'tareas',
   USUARIOS: 'usuarios',
+};
+
+const ordenarPorPrioridad = (tareas) => {
+  return [...tareas].sort((a, b) => {
+    const prioridadA = PRIORIDAD_ORDEN[a.prioridad] ?? Object.keys(PRIORIDAD_ORDEN).length;
+    const prioridadB = PRIORIDAD_ORDEN[b.prioridad] ?? Object.keys(PRIORIDAD_ORDEN).length;
+    return prioridadA - prioridadB;
+  });
 };
 
 const obtenerCargaActivaEmpleado = async (idEmpleado) => {
@@ -40,7 +54,8 @@ const obtenerNombreEmpleado = async (idEmpleado) => {
 
 const obtenerTodasLasTareas = async () => {
   const snapshot = await db.collection(COLECCIONES.TAREAS).get();
-  return snapshot.docs.map((doc) => mapearTarea(doc));
+  const tareas = snapshot.docs.map((doc) => mapearTarea(doc));
+  return ordenarPorPrioridad(tareas);
 };
 
 const obtenerTareasPorEmpleado = async (idUsuario) => {
@@ -49,7 +64,8 @@ const obtenerTareasPorEmpleado = async (idUsuario) => {
     .where('idEmpleado', '==', idUsuario)
     .get();
 
-  return snapshot.docs.map((doc) => mapearTarea(doc));
+  const tareas = snapshot.docs.map((doc) => mapearTarea(doc));
+  return ordenarPorPrioridad(tareas);
 };
 
 const obtenerTareasPorJefe = async (idJefe) => {
@@ -71,13 +87,13 @@ const obtenerTareasPorJefe = async (idJefe) => {
     })
   );
 
-  return tareas;
+  return ordenarPorPrioridad(tareas);
 };
 
 const crearTarea = async (datos) => {
-  const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = datos || {};
+  const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, prioridad } = datos || {};
 
-  if (!idEmpleado || idJefe === undefined || idJefe === null || !titulo || !descripcion || !fechaLimite) {
+  if (!idEmpleado || idJefe === undefined || idJefe === null || !titulo || !descripcion || !fechaLimite || !prioridad) {
     throw crearError(400, 'Faltan campos requeridos');
   }
 
@@ -85,11 +101,14 @@ const crearTarea = async (datos) => {
     throw crearError(400, 'La fecha límite debe ser una fecha futura');
   }
 
+  if (!validarPrioridad(prioridad)) {
+    throw crearError(400, 'La prioridad debe ser Alta, Media o Baja');
+  }
+
   const cargaActual = await obtenerCargaActivaEmpleado(idEmpleado);
   if (cargaActual >= 3) {
     throw crearError(400, 'El empleado ya tiene 3 tareas activas, no se pueden asignar más');
   }
-  const prioridad = calcularPrioridad(fechaLimite, cargaActual);
 
   const nuevaTarea = {
     idEmpleado,

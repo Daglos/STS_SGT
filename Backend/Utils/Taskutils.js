@@ -1,4 +1,5 @@
 const MILISEGUNDOS_POR_DIA = 1000 * 60 * 60 * 24;
+const PRIORIDADES_VALIDAS = ['Alta', 'Media', 'Baja'];
 
 const crearError = (statusCode, message) => {
   const error = new Error(message);
@@ -12,6 +13,10 @@ const validarFechaFutura = (fecha) => {
   if (Number.isNaN(fechaObjetivo.getTime())) return false;
 
   return fechaObjetivo.getTime() > Date.now();
+};
+
+const validarPrioridad = (prioridad) => {
+  return PRIORIDADES_VALIDAS.includes(prioridad);
 };
 
 const calcularPrioridad = (fechaLimite, cargaActual) => {
@@ -42,6 +47,7 @@ const construirActualizacion = (body, camposPermitidos) => {
 module.exports = {
   crearError,
   validarFechaFutura,
+  validarPrioridad,
   calcularPrioridad,
   mapearTarea,
   construirActualizacion,

@@ -1,5 +1,5 @@
 const admin = require('firebase-admin')
-const serviceAccount = require('../proyectoprimerparcial-e9949-firebase-adminsdk-fbsvc-8cc2f33d24.json')
+const serviceAccount = require('../proyectofb-fb9c5-firebase-adminsdk-fbsvc-f5381eb16f.json')
 
 /**
  * Inicializar la aplicación de Firebase Admin SDK

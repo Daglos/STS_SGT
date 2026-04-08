@@ -97,12 +97,12 @@ const crearTask = async (req, res) => {
 const actualizarTask = async (req, res) => {
   try {
     const { id } = req.query;
-    const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado } = req.body || {};
+    const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado, prioridad } = req.body || {};
 
     const actualizada = await taskService.actualizarTareaPorId(
       id,
-      { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado },
-      ['idEmpleado', 'idJefe', 'titulo', 'descripcion', 'fechaLimite', 'estado']
+      { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado, prioridad },
+      ['idEmpleado', 'idJefe', 'titulo', 'descripcion', 'fechaLimite', 'estado', 'prioridad']
     );
 
     return res.status(200).json({
