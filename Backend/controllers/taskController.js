@@ -1,406 +1,149 @@
-const { db } = require('../config/firebase')
+const taskService = require('../services/Taskservices');
 
-const validarFechaFutura = (fecha) => {
-    const target = new Date(fecha);
-    if (Number.isNaN(target.getTime())) return false;
-    const ahora = new Date();
-    return target.getTime() > ahora.getTime();
-};
-/**
- * Controlador para categorizar las tareas por prioridad 
- * Toma en consideración la carga y la fecha limite
- */
-const calcularPrioridad = (fechaLimite, carga) => {
-    const hoy = new Date();
-    const fecha = new Date(fechaLimite);
+const manejarError = (res, error, mensajePorDefecto = 'Error interno del servidor') => {
+  const statusCode = error.statusCode || 500;
 
-    const dias = Math.ceil((fecha - hoy) / (1000 * 60 * 60 * 24));
-
-    if (dias <= 2 || carga >= 5) return 'Alta';
-    if (dias <= 5 || carga >= 3) return 'Media';
-    return 'Baja';
+  return res.status(statusCode).json({
+    success: false,
+    error: error.message || mensajePorDefecto,
+  });
 };
 
-/**
- * Controlador para obtener todas las tareas del sistema
- * Recupera la lista completa de tareas desde Firebase y las retorna en formato JSON
- */
 const obtenerTasks = async (req, res) => {
-    try {
-        /**
-         * Obtener todos los documentos de la colección de tareas
-         */
-        const taskSnapshot = await db.collection('tareas').get()
-        console.log(taskSnapshot)
-        const user = []
+  try {
+    const tareas = await taskService.obtenerTodasLasTareas();
 
-        /**
-         * Iterar sobre cada documento y construir el array de tareas
-         * incluyendo el ID del documento junto con sus datos
-         */
-        taskSnapshot.forEach(doc => {
-            user.push({
-                id: doc.id,
-                ...doc.data()
-            })
-        })
+    return res.json({
+      success: true,
+      data: tareas,
+      total: tareas.length,
+    });
+  } catch (error) {
+    console.error('Error al obtener las tareas:', error);
+    return manejarError(res, error, 'Error al obtener las tareas');
+  }
+};
 
-        /**
-         * Retornar la lista de tareas con el total de registros
-         */
-        res.json({
-            success: true,
-            data: user,
-            total: user.length
-        })
-    }
-    catch (error) {
-        console.error('Error al obtener las tareas:', error)
-        res.status(500).json({ success: false, error: error.message })
-    }
-}
+const filtrarTasks = async (req, res) => {
+  return res.status(501).json({
+    success: false,
+    error: 'Función pendiente de implementación',
+  });
+};
 
-/**
- * Controlador para buscar y filtrar tareas
- * Permite filtrar por usuario y estado 
- */
-
-const filtrarTasks = async (req, res) => { }
-
-/**
- * Controlador para obtener las tareas que un usuario jefe asignó a sus empleados
- * Filtra las tareas por ID de jefe y retorna solo las que le corresponden
- */
 const obtenerTaskPorIdJefe = async (req, res) => {
-    try {
-        const { idjefe } = req.query;
+  try {
+    const { idjefe } = req.query;
 
-        /**
-         * Validar que se proporcione el ID del usuario
-         */
-        if (!idjefe) {
-            return res.status(400).json({
-                success: false,
-                error: "Falta el ID del jefe"
-            });
-        }
-
-        /**
-         * Consultar las tareas filtradas por el ID del empleado
-         */
-        const taskSnapshot = await db.collection('tareas').where('idJefe', '==', idjefe).get();
-        const tasks = [];
-
-        /**
-         * Recorrer tareas y buscar el empleado relacionado
-         */
-        for (const doc of taskSnapshot.docs) {
-
-            const tarea = doc.data();
-
-            let nombreEmpleado = "juan";
-
-            if (tarea.idEmpleado) {
-
-                const empleadoDoc = await db
-                    .collection("usuarios")
-                    .doc(tarea.idEmpleado)
-                    .get();
-
-                if (empleadoDoc.exists) {
-                    nombreEmpleado = empleadoDoc.data().nombre + " " + empleadoDoc.data().apellido;
-                }
-            }
-
-            tasks.push({
-                id: doc.id,
-                ...tarea,
-                nombreEmpleado
-            });
-        }
-
-        /**
-         * Retornar las tareas del usuario específico
-         */
-        return res.json({
-            success: true,
-            data: tasks,
-            total: tasks.length
-        });
-
-    } catch (error) {
-        console.error('Error al obtener tareas:', error);
-        res.status(500).json({ success: false, error: error.message });
+    if (!idjefe) {
+      return res.status(400).json({
+        success: false,
+        error: 'Falta el ID del jefe',
+      });
     }
+
+    const tasks = await taskService.obtenerTareasPorJefe(idjefe);
+
+    return res.json({
+      success: true,
+      data: tasks,
+      total: tasks.length,
+    });
+  } catch (error) {
+    console.error('Error al obtener tareas del jefe:', error);
+    return manejarError(res, error, 'Error al obtener tareas');
+  }
 };
 
-
-/**
- * Controlador para obtener las tareas asignadas a un usuario específico
- * Filtra las tareas por ID de empleado y retorna solo las que le corresponden
- */
 const obtenerTaskPorId = async (req, res) => {
-    try {
-        const { idUsuario } = req.query;
+  try {
+    const { idUsuario } = req.query;
 
-        /**
-         * Validar que se proporcione el ID del usuario
-         */
-        if (!idUsuario) {
-            return res.status(400).json({
-                success: false,
-                error: "Falta el ID del usuario"
-            });
-        }
-
-        /**
-         * Consultar las tareas filtradas por el ID del empleado
-         */
-        const taskSnapshot = await db.collection('tareas').where('idEmpleado', '==', idUsuario).get();
-        const tasks = [];
-
-        /**
-         * Construir el array con las tareas encontradas
-         */
-        taskSnapshot.forEach(doc => {
-            tasks.push({
-                id: doc.id,
-                ...doc.data()
-            });
-        });
-
-        /**
-         * Retornar las tareas del usuario específico
-         */
-        return res.json({
-            success: true,
-            data: tasks,
-            total: tasks.length
-        });
-
-    } catch (error) {
-        console.error('Error al obtener tareas:', error);
-        res.status(500).json({ success: false, error: error.message });
+    if (!idUsuario) {
+      return res.status(400).json({
+        success: false,
+        error: 'Falta el ID del usuario',
+      });
     }
+
+    const tasks = await taskService.obtenerTareasPorEmpleado(idUsuario);
+
+    return res.json({
+      success: true,
+      data: tasks,
+      total: tasks.length,
+    });
+  } catch (error) {
+    console.error('Error al obtener tareas:', error);
+    return manejarError(res, error, 'Error al obtener tareas');
+  }
 };
 
-/**
- * Controlador para crear una nueva tarea en el sistema
- * Valida los campos requeridos y almacena la tarea en Firebase con estado inicial activo
- */
 const crearTask = async (req, res) => {
-    try {
-        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite } = req.body || {}
+  try {
+    const nuevaTarea = await taskService.crearTarea(req.body);
 
-        /**
-         * Validar que todos los campos requeridos estén presentes
-         */
-        if (!idEmpleado || idJefe === undefined || !titulo || !descripcion || !fechaLimite) {
-            return res.status(400).json({
-                success: false,
-                error: 'Faltan campos requeridos'
-            })
-        }
+    return res.status(201).json({
+      success: true,
+      message: 'Tarea agregada exitosamente',
+      data: nuevaTarea,
+    });
+  } catch (error) {
+    console.error('Error al agregar la tarea:', error);
+    return manejarError(res, error, 'Error al agregar la tarea');
+  }
+};
 
-        /**
-         * Validar que la fecha límite no sea pasada
-         */
-        if (!validarFechaFutura(fechaLimite)) {
-            return res.status(400).json({
-                success: false,
-                error: 'La fecha límite debe ser una fecha futura'
-            })
-        }
-
-        // Obtener tareas activas del empleado
-        const tareasEmpleado = await db
-            .collection('tareas')
-            .where('idEmpleado', '==', idEmpleado)
-            .where('estado', '==', 'activo')
-            .get();
-
-        const carga = tareasEmpleado.size;
-
-        const prioridad = calcularPrioridad(fechaLimite, carga);
-
-        /**
-         * Construir el objeto de la nueva tarea con estado inicial
-         */
-        const newTask = {
-            idEmpleado,
-            idJefe,
-            titulo,
-            descripcion,
-            fechaLimite,
-            estado: 'activo',
-            prioridad
-        }
-
-        /**
-         * Agregar la nueva tarea a la colección en Firebase
-         */
-        const docRef = await db.collection('tareas').add(newTask)
-
-        /**
-         * Retornar confirmación con los datos de la tarea creada
-         */
-        res.status(201).json({
-            success: true,
-            message: 'Tarea agregada exitosamente',
-            data: {
-                id: docRef.id,
-                ...newTask
-            }
-        })
-    }
-    catch (error) {
-        console.error('Error al agregar la tarea:', error)
-        res.status(500).json({
-            success: false,
-            error: error.message
-        })
-    }
-}
-
-/**
- * Controlador para actualizar los datos de una tarea existente
- * Permite actualizar parcial o totalmente los campos de la tarea
- */
 const actualizarTask = async (req, res) => {
-    try {
-        const { id } = req.query;
-        const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado } = req.body || {};
+  try {
+    const { id } = req.query;
+    const { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado } = req.body || {};
 
-        /**
-         * Validar que se proporcione el ID de la tarea
-         */
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: "falta el ID de la tarea"
-            });
-        }
+    const actualizada = await taskService.actualizarTareaPorId(
+      id,
+      { idEmpleado, idJefe, titulo, descripcion, fechaLimite, estado },
+      ['idEmpleado', 'idJefe', 'titulo', 'descripcion', 'fechaLimite', 'estado']
+    );
 
-        /**
-         * Construir el objeto con solo los campos que se van a actualizar
-         */
-        const updatedData = {};
+    return res.status(200).json({
+      success: true,
+      message: 'Tarea actualizada correctamente',
+      data: actualizada,
+    });
+  } catch (error) {
+    console.error('Error al actualizar la tarea:', error);
+    return manejarError(res, error, 'Error al actualizar la tarea');
+  }
+};
 
-        if (idEmpleado !== undefined) updatedData.idEmpleado = idEmpleado;
-        if (idJefe !== undefined) updatedData.idJefe = idJefe;
-        if (titulo !== undefined) updatedData.titulo = titulo;
-        if (descripcion !== undefined) updatedData.descripcion = descripcion;
-        if (fechaLimite !== undefined) {
-            if (!validarFechaFutura(fechaLimite)) {
-                return res.status(400).json({
-                    success: false,
-                    error: 'La fecha límite debe ser una fecha futura'
-                });
-            }
-            updatedData.fechaLimite = fechaLimite;
-        }
-        if (estado !== undefined) updatedData.estado = estado;
-
-        /**
-         * Validar que se haya enviado al menos un campo para actualizar
-         */
-        if (Object.keys(updatedData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: "No se enviaron datos para actualizar"
-            });
-        }
-
-        /**
-         * Actualizar la tarea en Firebase con los nuevos datos
-         */
-        const taskRef = db.collection('tareas').doc(id);
-        await taskRef.update(updatedData);
-
-        /**
-         * Retornar confirmación con los datos actualizados
-         */
-        res.status(200).json({
-            success: true,
-            message: 'Tarea actualizada correctamente',
-            data: { id, ...updatedData }
-        });
-
-    } catch (error) {
-        console.error('Error al actualizar la tarea:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
-
-/**
- * Controlador para actualizar únicamente el estado de una tarea
- * Permite cambiar el estado de la tarea sin modificar otros campos
- */
 const actualizarState = async (req, res) => {
-    try {
-        const { id } = req.query;
-        const { estado } = req.body || {};
+  try {
+    const { id } = req.query;
+    const { estado } = req.body || {};
 
-        /**
-         * Validar que se proporcione el ID de la tarea
-         */
-        if (!id) {
-            return res.status(400).json({
-                success: false,
-                error: "falta el ID del estado"
-            });
-        }
+    const actualizada = await taskService.actualizarTareaPorId(
+      id,
+      { estado },
+      ['estado']
+    );
 
-        /**
-         * Construir el objeto con el estado a actualizar
-         */
-        const updatedData = {};
-
-        if (estado !== undefined) updatedData.estado = estado;
-
-        /**
-         * Validar que se haya proporcionado el estado
-         */
-        if (Object.keys(updatedData).length === 0) {
-            return res.status(400).json({
-                success: false,
-                error: "No se enviaron datos para actualizar"
-            });
-        }
-
-        /**
-         * Actualizar solo el estado de la tarea en Firebase
-         */
-        const taskRef = db.collection('tareas').doc(id);
-        await taskRef.update(updatedData);
-
-        /**
-         * Retornar confirmación con el estado actualizado
-         */
-        res.status(200).json({
-            success: true,
-            message: 'Estado actualizado correctamente',
-            data: { id, ...updatedData }
-        });
-
-    } catch (error) {
-        console.error('Error al actualizar el estado:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-}
-
+    return res.status(200).json({
+      success: true,
+      message: 'Estado actualizado correctamente',
+      data: actualizada,
+    });
+  } catch (error) {
+    console.error('Error al actualizar el estado:', error);
+    return manejarError(res, error, 'Error al actualizar el estado');
+  }
+};
 
 module.exports = {
-    obtenerTasks,
-    obtenerTaskPorId,
-    obtenerTaskPorIdJefe,
-    crearTask,
-    actualizarTask,
-    actualizarState,
-}
+  obtenerTasks,
+  filtrarTasks,
+  obtenerTaskPorId,
+  obtenerTaskPorIdJefe,
+  crearTask,
+  actualizarTask,
+  actualizarState,
+};

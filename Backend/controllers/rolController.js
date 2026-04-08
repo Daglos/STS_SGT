@@ -10,19 +10,15 @@ const obtenerRols = async (req, res) => {
          * Obtener todos los documentos de la colección de roles
          */
         const rolesSnapshot = await db.collection('roles').get()
-        console.log(rolesSnapshot)
-        const roles = []
+        
 
         /**
-         * Iterar sobre cada documento y construir el array de roles
-         * incluyendo el ID del documento junto con sus datos
+         * Refactorización reeemplazo de forEach + push por un map -- Emely
          */
-        rolesSnapshot.forEach(doc => {
-            roles.push({
-                id: doc.id,
-                ...doc.data()
-            })
-        })
+        const roles = rolesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }))
 
         /**
          * Retornar la lista de roles con el total de registros
