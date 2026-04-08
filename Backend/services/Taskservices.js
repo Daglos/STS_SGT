@@ -86,6 +86,9 @@ const crearTarea = async (datos) => {
   }
 
   const cargaActual = await obtenerCargaActivaEmpleado(idEmpleado);
+  if (cargaActual >= 3) {
+    throw crearError(400, 'El empleado ya tiene 3 tareas activas, no se pueden asignar más');
+  }
   const prioridad = calcularPrioridad(fechaLimite, cargaActual);
 
   const nuevaTarea = {
