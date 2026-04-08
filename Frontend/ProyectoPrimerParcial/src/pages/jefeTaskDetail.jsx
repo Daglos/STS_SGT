@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
-import { TaskCard } from "../components/taskcard";
 const url = import.meta.env.VITE_URL;
 
 const PRIORIDAD_ORDEN = {
