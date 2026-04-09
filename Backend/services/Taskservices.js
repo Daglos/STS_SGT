@@ -30,7 +30,7 @@ const obtenerCargaActivaEmpleado = async (idEmpleado) => {
   const snapshot = await db
     .collection(COLECCIONES.TAREAS)
     .where('idEmpleado', '==', idEmpleado)
-    .where('estado', '==', 'activo')
+    .where('estado', 'in', ['activo', 'En Curso'])
     .get();
 
   return snapshot.size;

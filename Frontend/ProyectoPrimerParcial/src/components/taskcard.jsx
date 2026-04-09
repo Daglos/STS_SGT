@@ -9,6 +9,9 @@ export const TaskCard = ({ task }) => {
       className="task-card"
       onClick={() => navigate("/taskDetail", { state: { task } })}
     >
+      <span className={`priority-badge ${task.prioridad?.toLowerCase()}`}>
+        {task.prioridad || 'Sin prioridad'}
+      </span>
       <p className="task-title">{task.titulo}</p>
       <p className="task-description">{task.descripcion}</p>
       <p>{task.estado}</p>
