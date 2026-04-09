@@ -167,7 +167,7 @@ export const TaskDetail = () => {
                     <button 
                         className="action-button primary" 
                         onClick={cambiarEstado}
-                        disabled={loading || taskState.estado === 'inactivo'}
+                        disabled={loading || taskState.estado === 'inactivo' || taskState.estado === 'retrasada' || taskState.idEmpleado !== usuario.id}
                     >
                         {loading 
                             ? 'Actualizando...' 
@@ -175,7 +175,9 @@ export const TaskDetail = () => {
                                 ? 'Iniciar Tarea'
                                 : taskState.estado === 'En Curso'
                                 ? 'Completar Tarea'
-                                : 'Tarea Inactiva'}
+                                : taskState.estado === 'retrasada'
+                                ? 'Tarea Retrasada'
+                                : 'Tarea Completada'}
                     </button>
                     
                 </div>

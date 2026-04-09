@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
+import { TaskCard } from "../components/taskcard";
 const url = import.meta.env.VITE_URL;
 
 const PRIORIDAD_ORDEN = {
@@ -134,76 +135,47 @@ export const JefeTaskDetail = () => {
     if (!usuario) {
         return "";
     }
+
+    const tareasActivas = tasks.filter(task => task.estado === "activo");
+    const tareasEnCurso = tasks.filter(task => task.estado === "En Curso");
+    const tareasRetrasadas = tasks.filter(task => task.estado === "retrasada");
+    const tareasInactivas = tasks.filter(task => task.estado === "inactivo");
+
     return (
         <>
             <NavBar />
             <div className="home-container">
-
                 <div className="tasks-container">
-                    {/**
-                  * Mostrar mensaje de aviso si no hay tareas pendientes identificadas
-                  */}
-                    {labelNoTasksDisponibles == "" ? <></> : <h2>{labelNoTasksDisponibles}</h2>}
+                    {labelNoTasksDisponibles && <h2>{labelNoTasksDisponibles}</h2>}
 
-                    {
-
-                        /**
-                         * Iterar sobre las tareas y renderizar solo las que están en estado activo
-                         * Ignora tareas inactivas, nulas o sin estado definido
-                         */
-                        tasks.map((task) => {
-                            if (task.estado == null || task.estado == undefined || task.estado == "inactivo") {
-                                return
-                            }
-                            else {
-                                return (
+                    <div className="tasks-section">
+                        <h2>Tareas Pendientes</h2>
+                        {tareasActivas.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
 
 
+                    <div className="tasks-section">
+                        <h2>Tareas En Curso</h2>
+                        {tareasEnCurso.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
 
-                                    /**
-                                     * Renderizar tarjeta de tarea con navegación al detalle
-                                     * Envía el objeto de la tarea a través del estado de navegación
-                                     */
-                                    <div className="task-card" key={task.id} onClick={() => {
-                                        navigate('/taskDetail',
-                                            {
-                                                state: {
-                                                    task
-                                                }
-                                            });
-                                    }}>
-                                        <span className={`priority-badge ${task.prioridad?.toLowerCase()}`}>
-                                            {task.prioridad || 'Sin prioridad'}
-                                        </span>
-                                        <p className="task-title">
-                                            {task.titulo}
-                                        </p>
-                                        <p className="task-description">
-                                            {task.descripcion}
-                                        </p>
-                                        {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <p className="task-employee">
-                                            Empleado asignado: {task.nombreEmpleado}
-                                        </p> : <></>}
+                    <div className="tasks-section">
+                        <h2>Tareas Retrasadas</h2>
+                        {tareasRetrasadas.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
 
-                                        {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <button className="updateTaskButton" onClick={(e) => {
-                                            e.stopPropagation();
-                                            navigate('/updateTask',
-                                                {
-                                                    state: {
-                                                        task
-                                                    }
-                                                }
-                                            )
-                                        }}>Modificar tarea</button> : <></>}
-
-
-                                    </div>
-
-                                )
-                            }
-
-                        })}
-
+                    <div className="tasks-section">
+                        <h2>Tareas Completadas</h2>
+                        {tareasInactivas.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </>

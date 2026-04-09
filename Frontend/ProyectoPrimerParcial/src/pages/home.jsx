@@ -145,35 +145,32 @@ export const Home = () => {
     return (
         <>
             <NavBar />
+
             <div className="home-container">
-
                 <div className="tasks-container">
-                    {/**
-                  * Mostrar mensaje de aviso si no hay tareas pendientes identificadas
-                  */}
-                    {labelNoTasksDisponibles == "" ? <></> : <h2>{labelNoTasksDisponibles}</h2>}
+                    {labelNoTasksDisponibles && <h2>{labelNoTasksDisponibles}</h2>}
 
-                    <div className="home-container">
-                        <div className="tasks-container">
-                            {labelNoTasksDisponibles && <h2>{labelNoTasksDisponibles}</h2>}
-
-                            <h2>Tareas Pendientes</h2>
-                            {tareasActivas.map(task => (
-                                <TaskCard key={task.id} task={task} />
-                            ))}
-
-                            <h2>Tareas En Curso</h2>
-                            {tareasEnCurso.map(task => (
-                                <TaskCard key={task.id} task={task} />
-                            ))}
-
-                            <h2>Tareas Retrasadas</h2>
-                            {tareasRetrasadas.map(task => (
-                                <TaskCard key={task.id} task={task} />
-                            ))}
-                        </div>
+                    <div className="tasks-section">
+                        <h2>Tareas Pendientes</h2>
+                        {tareasActivas.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
                     </div>
 
+
+                    <div className="tasks-section">
+                        <h2>Tareas En Curso</h2>
+                        {tareasEnCurso.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
+
+                    <div className="tasks-section">
+                        <h2>Tareas Retrasadas</h2>
+                        {tareasRetrasadas.map(task => (
+                            <TaskCard key={task.id} task={task} usuario={usuario} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </>

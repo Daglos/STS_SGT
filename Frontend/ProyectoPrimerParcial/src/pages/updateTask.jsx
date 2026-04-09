@@ -130,7 +130,7 @@ export const UpdateTask = () => {
              */
 
             if (task.estado === "retrasada") {
-                formData.estado = "Activo"
+                formData.estado = "activo"
             }
 
             if (task.estado === "inactivo") {
