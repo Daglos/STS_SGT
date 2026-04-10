@@ -6,6 +6,11 @@ const {
   mapearTarea,
   construirActualizacion,
 } = require('../Utils/Taskutils');
+const {
+  getTasksAssignedToEmployee,
+  updateGroupTask,
+  updateTaskStateByTaskId,
+} = require('../repositories/taskGroupRepository');
 
 const PRIORIDAD_ORDEN = {
   Alta: 0,
@@ -163,6 +168,7 @@ const actualizarTareasVencidas = async (idUsuario) => {
   }
 
   const tareas = await obtenerTareasPorEmpleado(idUsuario);
+  const tareasGrupales = await getTasksAssignedToEmployee(idUsuario);
 
   const tareasActualizadas = [];
   const ahora = Date.now();
@@ -177,8 +183,30 @@ const actualizarTareasVencidas = async (idUsuario) => {
     }
   }
 
+  for (const tarea of tareasGrupales) {
+    const fechaLimite = new Date(tarea.fechaLimite);
+    const estaVencida = !Number.isNaN(fechaLimite.getTime()) && fechaLimite.getTime() < ahora;
+
+    if (estaVencida && tarea.estado !== 'inactivo' && tarea.estado !== 'retrasada') {
+      const tareaActualizada = await updateTaskStateByTaskId(tarea.id, { estado: 'retrasada' });
+      tareasActualizadas.push(tareaActualizada);
+    }
+  }
+
   console.log('Tareas vencidas actualizadas:', tareasActualizadas);
   return tareasActualizadas;
+};
+
+const actualizarTareaGrupalPorId = async (taskId, updateData) => {
+  if (!taskId) {
+    throw crearError(400, 'Falta el ID de la tarea grupal');
+  }
+
+  if (!updateData || Object.keys(updateData).length === 0) {
+    throw crearError(400, 'No se enviaron datos para actualizar');
+  }
+
+  return updateTaskStateByTaskId(taskId, updateData);
 };
 
 module.exports = {
@@ -187,5 +215,6 @@ module.exports = {
   obtenerTareasPorJefe,
   crearTarea,
   actualizarTareaPorId,
+  actualizarTareaGrupalPorId,
   actualizarTareasVencidas,
 };

@@ -4,6 +4,7 @@ import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
 import { TaskCard } from "../components/taskcard";
+import "../less/pages/jefeTaskDetail.less";
 const url = import.meta.env.VITE_URL;
 
 const PRIORIDAD_ORDEN = {
@@ -41,18 +42,45 @@ export const JefeTaskDetail = () => {
     const obtenerTasks = async (idUsuario) => {
         console.log("ID del usuario:", idUsuario);
         console.log("Rol del usuario:", usuario.idRol);
-        if (!usuario.idRol == "QUwARFWEdbC3A7iCBMBX") {
+        if (usuario.idRol !== "QUwARFWEdbC3A7iCBMBX") {
             return [];
         }
         try {
             const response = await fetch(url + `/task/obtenerTaskPorIdJefe?idjefe=${idUsuario}`)
             const data = await response.json()
             console.log(data.data)
-            return data.data
+            return Array.isArray(data.data) ? data.data : [];
         }
         catch (error) {
             console.log(error)
             return []
+        }
+    }
+
+    const obtenerTareasDeGruposPorJefe = async (idJefe) => {
+        try {
+            const response = await fetch(url + `/task-groups/taskGroups`)
+            const data = await response.json()
+            const groups = Array.isArray(data.data) ? data.data : [];
+            const tasks = [];
+
+            groups.forEach((group) => {
+                const groupTasks = Array.isArray(group.tasks) ? group.tasks : [];
+                groupTasks.forEach((task) => {
+                    if (task.idJefe === idJefe || group.adminId === idJefe) {
+                        tasks.push({
+                            ...task,
+                            groupId: group.id,
+                            groupName: group.groupName || group.nombre,
+                        });
+                    }
+                });
+            });
+
+            return tasks;
+        } catch (error) {
+            console.log(error);
+            return [];
         }
     }
 
@@ -89,8 +117,12 @@ export const JefeTaskDetail = () => {
 
         if (usuario?.id) {
             const fetchTasks = async () => {
-                const data = await obtenerTasks(usuario.id);
-                setTasks(ordenarPorPrioridad(data || []));
+                const [directTasks, groupTasks] = await Promise.all([
+                    obtenerTasks(usuario.id),
+                    obtenerTareasDeGruposPorJefe(usuario.id),
+                ]);
+                const allTasks = [...directTasks, ...groupTasks];
+                setTasks(ordenarPorPrioridad(allTasks));
             };
             fetchTasks();
         }
@@ -136,45 +168,88 @@ export const JefeTaskDetail = () => {
         return "";
     }
 
-    const tareasActivas = tasks.filter(task => task.estado === "activo");
-    const tareasEnCurso = tasks.filter(task => task.estado === "En Curso");
-    const tareasRetrasadas = tasks.filter(task => task.estado === "retrasada");
-    const tareasInactivas = tasks.filter(task => task.estado === "inactivo");
+    const tareasDirectas = tasks.filter(task => !task.groupId);
+    const tareasGrupales = tasks.filter(task => task.groupId);
+
+    const directasActivas = tareasDirectas.filter(task => task.estado === "activo");
+    const directasEnCurso = tareasDirectas.filter(task => task.estado === "En Curso");
+    const directasRetrasadas = tareasDirectas.filter(task => task.estado === "retrasada");
+    const directasInactivas = tareasDirectas.filter(task => task.estado === "inactivo");
+
+    const grupalesActivas = tareasGrupales.filter(task => task.estado === "activo");
+    const grupalesEnCurso = tareasGrupales.filter(task => task.estado === "En Curso");
+    const grupalesRetrasadas = tareasGrupales.filter(task => task.estado === "retrasada");
+    const grupalesInactivas = tareasGrupales.filter(task => task.estado === "inactivo");
 
     return (
         <>
             <NavBar />
-            <div className="home-container">
-                <div className="tasks-container">
+            <div className="home-container jefe-task-detail">
+                <div className="tasks-container jefe-tasks-container">
                     {labelNoTasksDisponibles && <h2>{labelNoTasksDisponibles}</h2>}
+                    <h2>Tareas Directas</h2>
+                    <div className="tasks-section jefe">
+                        
 
-                    <div className="tasks-section">
-                        <h2>Tareas Pendientes</h2>
-                        {tareasActivas.map(task => (
-                            <TaskCard key={task.id} task={task} usuario={usuario} />
-                        ))}
+                        <div className="tasks-subsection">
+                            <h3>Pendientes</h3>
+                            {directasActivas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
+
+                        <div className="tasks-subsection">
+                            <h3>En Curso</h3>
+                            {directasEnCurso.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
+
+                        <div className="tasks-subsection">
+                            <h3>Retrasadas</h3>
+                            {directasRetrasadas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
+
+                        <div className="tasks-subsection">
+                            <h3>Completadas</h3>
+                            {directasInactivas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
                     </div>
 
+                    <div className="tasks-section jefe group-tasks-section">
+                        <h2>Tareas Grupales</h2>
 
-                    <div className="tasks-section">
-                        <h2>Tareas En Curso</h2>
-                        {tareasEnCurso.map(task => (
-                            <TaskCard key={task.id} task={task} usuario={usuario} />
-                        ))}
-                    </div>
+                        <div className="tasks-subsection">
+                            <h3>Pendientes</h3>
+                            {grupalesActivas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
 
-                    <div className="tasks-section">
-                        <h2>Tareas Retrasadas</h2>
-                        {tareasRetrasadas.map(task => (
-                            <TaskCard key={task.id} task={task} usuario={usuario} />
-                        ))}
-                    </div>
+                        <div className="tasks-subsection">
+                            <h3>En Curso</h3>
+                            {grupalesEnCurso.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
 
-                    <div className="tasks-section">
-                        <h2>Tareas Completadas</h2>
-                        {tareasInactivas.map(task => (
-                            <TaskCard key={task.id} task={task} usuario={usuario} />
-                        ))}
+                        <div className="tasks-subsection">
+                            <h3>Retrasadas</h3>
+                            {grupalesRetrasadas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
+
+                        <div className="tasks-subsection">
+                            <h3>Completadas</h3>
+                            {grupalesInactivas.map(task => (
+                                <TaskCard key={task.id} task={task} usuario={usuario} />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,0 +1,142 @@
+.group-assignment-container {
+  margin-top: 70px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1d2e 0%, @jetBlue 50%, @blue-slate 100%);
+  padding: 60px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.group-assignment-card {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 840px;
+  padding: 40px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+}
+
+.group-assignment-card h1 {
+  margin: 0 0 8px;
+  color: @jetBlue;
+  font-size: 32px;
+}
+
+.section-subtitle {
+  margin: 0 0 28px;
+  color: @blue-slate;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.section-block {
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.section-block:last-of-type {
+  border-bottom: none;
+}
+
+.group-message {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(96, 165, 250, 0.08));
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  color: #1e40af;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 700;
+  color: @jetBlue;
+}
+
+.form-group input,
+.form-group select {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: @white;
+  color: @jetBlue;
+  font-size: 15px;
+}
+
+.form-group button,
+.action-buttons button {
+  padding: 14px 22px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, @coral-glow 0%, darken(@coral-glow, 8%) 100%);
+  color: @white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group button:hover,
+.action-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.group-details {
+  margin-top: 16px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.member-chip {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: @jetBlue;
+  font-size: 13px;
+}
+
+.assign-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.assign-section select {
+  width: 100%;
+}
+
+.empty-text {
+  color: @blue-slate;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .group-assignment-card {
+    padding: 24px;
+  }
+}

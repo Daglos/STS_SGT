@@ -4,6 +4,7 @@ import { useAuth } from "../context/authContext";
 import { useState } from "react";
 import { NavBar } from "../components/navBar";
 import { TaskCard } from "../components/taskcard";
+import { Link } from 'react-router-dom';
 const url = import.meta.env.VITE_URL;
 
 const PRIORIDAD_ORDEN = {
@@ -42,16 +43,24 @@ export const Home = () => {
         try {
             const response = await fetch(url + `/task/obtenerTaskPorId?idUsuario=${idUsuario}`)
             const data = await response.json()
-            console.log("hola: " + data.data)
-            return data.data
+            return Array.isArray(data.data) ? data.data : []
         }
         catch (error) {
             console.log(error)
             return []
         }
+    }
 
-
-
+    const obtenerTareasDeGrupos = async (idUsuario) => {
+        try {
+            const response = await fetch(url + `/task-groups/taskGroups/employee/${idUsuario}`)
+            const data = await response.json()
+            return Array.isArray(data.data) ? data.data : []
+        }
+        catch (error) {
+            console.log(error)
+            return []
+        }
     }
 
     /**
@@ -74,10 +83,13 @@ export const Home = () => {
 
 
         if (!loading && usuario?.id) {
-            console.log(usuario)
             const fetchTasks = async () => {
-                const data = await obtenerTasks(usuario.id);
-                setTasks(ordenarPorPrioridad(data || []));
+                const [directTasks, groupTasks] = await Promise.all([
+                    obtenerTasks(usuario.id),
+                    obtenerTareasDeGrupos(usuario.id)
+                ]);
+                const allTasks = [...directTasks, ...groupTasks];
+                setTasks(ordenarPorPrioridad(allTasks));
             };
             fetchTasks();
 

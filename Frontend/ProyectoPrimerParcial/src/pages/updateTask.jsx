@@ -21,7 +21,16 @@ const obtenerUsuarios = async () => {
     }
 };
 
-
+const obtenerGrupoPorId = async (groupId) => {
+    try {
+        const response = await fetch(url + `/task-groups/taskGroup/${groupId}`);
+        const data = await response.json();
+        return data.data || null;
+    } catch (error) {
+        console.error("Error al obtener grupo:", error);
+        return null;
+    }
+};
 
 /**
  * Componente de detalle de tarea
@@ -39,6 +48,7 @@ export const UpdateTask = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [error, setError] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [groupMembers, setGroupMembers] = useState([]);
 
     const [formData, setFormData] = useState({    });
 
@@ -53,7 +63,12 @@ export const UpdateTask = () => {
             idEmpleado: task.idEmpleado || '',
             prioridad: task.prioridad || 'Media',
             idJefe: task.idJefe || usuario?.id || '',
-            estado: task.estado || ''
+            estado: task.estado || '',
+            assignedEmployees: Array.isArray(task.assignedEmployees)
+                ? task.assignedEmployees
+                : task.assignedEmployees
+                ? [task.assignedEmployees]
+                : [],
         });
     }
 }, [task, usuario]);
@@ -65,7 +80,11 @@ export const UpdateTask = () => {
     
     const actualizarTask = async (taskData) => {
         try {
-            const response = await fetch(url + `/task/actualizarTask?id=${taskState.id}`, {
+            const endpoint = taskState.groupId
+                ? `${url}/task-groups/taskGroup/${taskState.groupId}/task/${taskState.id}`
+                : `${url}/task/actualizarTask?id=${taskState.id}`;
+
+            const response = await fetch(endpoint, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -101,6 +120,31 @@ export const UpdateTask = () => {
         fetchUsuarios();
     }, []);
 
+    useEffect(() => {
+        const fetchGrupo = async () => {
+            if (!taskState?.groupId) {
+                setGroupMembers([]);
+                return;
+            }
+
+            const grupo = await obtenerGrupoPorId(taskState.groupId);
+            if (!grupo) {
+                setGroupMembers([]);
+                return;
+            }
+
+            if (Array.isArray(grupo.miembros)) {
+                setGroupMembers(grupo.miembros);
+            } else if (Array.isArray(grupo.members)) {
+                setGroupMembers(grupo.members);
+            } else {
+                setGroupMembers([]);
+            }
+        };
+
+        fetchGrupo();
+    }, [taskState]);
+
     /**
      * Maneja los cambios en los campos del formulario
      * Actualiza el estado del formulario y limpia mensajes de error
@@ -111,6 +155,20 @@ export const UpdateTask = () => {
             ...prev,
             [name]: value
         }));
+
+        if (error) setError('');
+    };
+
+    const handleAssignedEmployeeCheckbox = (employeeId) => {
+        setFormData((prev) => {
+            const current = Array.isArray(prev.assignedEmployees) ? prev.assignedEmployees : [];
+            return {
+                ...prev,
+                assignedEmployees: current.includes(employeeId)
+                    ? current.filter((id) => id !== employeeId)
+                    : [...current, employeeId],
+            };
+        });
 
         if (error) setError('');
     };
@@ -138,7 +196,6 @@ export const UpdateTask = () => {
             }
 
             const taskData = {
-                idEmpleado: formData.idEmpleado,
                 idJefe: formData.idJefe,
                 titulo: formData.titulo,
                 descripcion: formData.descripcion,
@@ -146,6 +203,26 @@ export const UpdateTask = () => {
                 prioridad: formData.prioridad,
                 estado: formData.estado
             };
+
+            if (taskState.groupId) {
+                const assignedEmployees = Array.isArray(formData.assignedEmployees)
+                    ? formData.assignedEmployees
+                    : [];
+
+                taskData.assignedEmployees = assignedEmployees.length > 0
+                    ? assignedEmployees
+                    : Array.isArray(taskState.assignedEmployees)
+                        ? taskState.assignedEmployees
+                        : taskState.assignedEmployees
+                            ? [taskState.assignedEmployees]
+                            : [];
+
+                if (taskData.assignedEmployees.length === 0) {
+                    throw new Error('Debes asignar al menos un miembro del grupo');
+                }
+            } else {
+                taskData.idEmpleado = formData.idEmpleado;
+            }
 
             /**
              * Intentar actualizar la tarea en el backend
@@ -244,8 +321,14 @@ export const UpdateTask = () => {
             <NavBar />
             <div className="create-task-container">
                 <div className="create-task-card">
-                    <h1 className="create-task-title">Actualizar Tarea</h1>
-                    <p className="create-task-subtitle">Completa los campos para actualizar la tarea</p>
+                    <h1 className="create-task-title">
+                        {taskState.groupId ? 'Actualizar Tarea Grupal' : 'Actualizar Tarea'}
+                    </h1>
+                    <p className="create-task-subtitle">
+                        {taskState.groupId
+                            ? 'Modifica la tarea grupal y selecciona los miembros del grupo.'
+                            : 'Completa los campos para actualizar la tarea.'}
+                    </p>
 
                     {error && (
                         <div className="error-message">
@@ -283,24 +366,66 @@ export const UpdateTask = () => {
                         </div>
 
                         <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="idEmpleado">Asignar a *</label>
-                                <select
-                                    id="idEmpleado"
-                                    name="idEmpleado"
-                                    value={formData.idEmpleado}
-                                    onChange={handleChange}
-                                    required
-                                    disabled={submitting}
-                                >
-                                    <option value="">Selecciona un empleado</option>
-                                    {usuarios.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.nombre} {user.apellido}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                            {taskState.groupId ? (
+                                <div className="group-task-section">
+                                    <div className="form-group">
+                                        <label>Grupo</label>
+                                        <input
+                                            type="text"
+                                            value={taskState.groupName || ''}
+                                            disabled
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Asignados al grupo *</label>
+                                        <div className="member-list">
+                                            {groupMembers.length === 0 ? (
+                                                <p>Cargando miembros del grupo...</p>
+                                            ) : (
+                                                groupMembers.map((memberId) => {
+                                                    const employee = usuarios.find((user) => user.id === memberId);
+                                                    const label = employee ? `${employee.nombre} ${employee.apellido}` : memberId;
+                                                    const assigned = Array.isArray(formData.assignedEmployees)
+                                                        ? formData.assignedEmployees.includes(memberId)
+                                                        : false;
+
+                                                    return (
+                                                        <label key={memberId} className="member-checkbox">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={assigned}
+                                                                onChange={() => handleAssignedEmployeeCheckbox(memberId)}
+                                                                disabled={submitting}
+                                                            />
+                                                            {label}
+                                                        </label>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="form-group">
+                                    <label htmlFor="idEmpleado">Asignar a *</label>
+                                    <select
+                                        id="idEmpleado"
+                                        name="idEmpleado"
+                                        value={formData.idEmpleado}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={submitting}
+                                    >
+                                        <option value="">Selecciona un empleado</option>
+                                        {usuarios.map((user) => (
+                                            <option key={user.id} value={user.id}>
+                                                {user.nombre} {user.apellido}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
 
                             <div className="form-group">
                                 <label htmlFor="fechaLimite">Fecha límite *</label>

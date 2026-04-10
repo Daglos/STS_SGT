@@ -11,6 +11,7 @@ import { CreateTask } from './pages/createTask';
 import { ForgotPassword } from './pages/forgotPassword';
 import { UpdateTask } from './pages/updateTask';
 import { JefeTaskDetail } from './pages/jefeTaskDetail';
+import { GroupAssignment } from './pages/GroupAssignment';
 import './less/index.less';
 
 /**
@@ -49,6 +50,8 @@ function App() {
       <Route path="/historyOfTask" element={<HistoryOfTask/>}/>
       <Route path="/updateTask" element={<UpdateTask/>}/>
       <Route path="/home" element={<Home/>}/>
+       {/* Agregamos la ruta de Asignación de Grupos */}
+      <Route path="/grupos" element={<GroupAssignment userId={usuario?.id} isAdmin={usuario?.idrol === "QUwARFWEdbC3A7iCBMBX"} />} />
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="*" element={<h1>404 - Página no encontrada</h1>} />
     </Routes>

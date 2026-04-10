@@ -20,6 +20,7 @@ export const TaskCard = ({ task, usuario }) => {
 
       <p className="task-title">{task.titulo}</p>
       <p className="task-description">{task.descripcion}</p>
+      {task.groupName ? <p className="task-group">Grupo: {task.groupName}</p> : null}
 
       {usuario.idRol == "QUwARFWEdbC3A7iCBMBX" ? <p className="task-employee">
         Empleado asignado: {task.nombreEmpleado || usuario.nombre + " " + usuario.apellido}

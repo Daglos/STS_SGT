@@ -11,6 +11,7 @@ export const NavBar = () => {
         { path: '/createTask', label: 'Crear Tarea' },
         { path: '/historyOfTask', label: 'Historial' },
         { path: '/jefeTaskDetail', label: 'Tareas Asignadas' },
+        { path: '/grupos', label: 'Asignación de Grupos'}
     ];
 
     return (

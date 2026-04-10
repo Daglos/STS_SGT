@@ -33,14 +33,20 @@ export const TaskDetail = () => {
             }else if(taskState.estado === "En Curso"){
                 newState = "inactivo"
             }
-            
-            const response = await fetch(url + `/task/actualizarState?id=${taskState.id}`, {
+
+            const endpoint = `${url}/task/actualizarState?id=${taskState.id}`;
+
+            const body = {
+                estado: newState,
+                ...(taskState.groupId ? { groupId: taskState.groupId } : {}),
+            };
+
+            const response = await fetch(endpoint, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-            
-                body: JSON.stringify({ estado: newState })
+                body: JSON.stringify(body)
             });
 
             if (!response.ok) {
@@ -113,6 +119,17 @@ export const TaskDetail = () => {
     
     return "Formato de fecha no válido";
 };
+    const assignedEmployees = taskState.assignedEmployees
+        ? Array.isArray(taskState.assignedEmployees)
+            ? taskState.assignedEmployees
+            : [taskState.assignedEmployees]
+        : [];
+
+    const isGroupTask = Boolean(taskState.groupId || assignedEmployees.length > 0);
+    const canUpdateState = taskState.groupId
+        ? assignedEmployees.includes(usuario.id) || usuario.idRol === "QUwARFWEdbC3A7iCBMBX"
+        : taskState.idEmpleado === usuario.id;
+
     return (
         <>
         <NavBar/>
@@ -157,6 +174,22 @@ export const TaskDetail = () => {
                                 : 'Tarea Inactiva'}
                         </p>
                     </div>
+
+                    {taskState.groupName && (
+                      <div className="detail-section">
+                        <h3 className="section-label">Grupo</h3>
+                        <p className="section-text">{taskState.groupName}</p>
+                      </div>
+                    )}
+
+                    {isGroupTask && (
+                      <div className="detail-section">
+                        <h3 className="section-label">Asignados</h3>
+                        <p className="section-text">
+                          {assignedEmployees.join(', ')}
+                        </p>
+                      </div>
+                    )}
                 </div>
 
                 <div className="detail-actions">
@@ -167,7 +200,7 @@ export const TaskDetail = () => {
                     <button 
                         className="action-button primary" 
                         onClick={cambiarEstado}
-                        disabled={loading || taskState.estado === 'inactivo' || taskState.estado === 'retrasada' || taskState.idEmpleado !== usuario.id}
+                        disabled={loading || taskState.estado === 'inactivo' || taskState.estado === 'retrasada' || !canUpdateState}
                     >
                         {loading 
                             ? 'Actualizando...' 
@@ -179,7 +212,9 @@ export const TaskDetail = () => {
                                 ? 'Tarea Retrasada'
                                 : 'Tarea Completada'}
                     </button>
-                    
+                    {isGroupTask && (
+                      <p className="group-note">Esta tarea pertenece a un grupo y su estado se actualiza correctamente desde aquí.</p>
+                    )}
                 </div>
             </div>
         </div>

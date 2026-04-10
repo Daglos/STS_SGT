@@ -14,8 +14,19 @@ const obtenerTasks = async (idUsuario) => {
     try {
         const response = await fetch(url + `/task/obtenerTaskPorId?idUsuario=${idUsuario}`)
         const data = await response.json()
-        console.log(data.data)
-        return data.data
+        return data.data || []
+    }
+    catch (error) {
+        console.log(error)
+        return []
+    }
+}
+
+const obtenerTareasDeGrupos = async (idUsuario) => {
+    try {
+        const response = await fetch(url + `/task-groups/taskGroups/employee/${idUsuario}`)
+        const data = await response.json()
+        return data.data || []
     }
     catch (error) {
         console.log(error)
@@ -39,11 +50,10 @@ export const HistoryOfTask = () => {
     useEffect(() => {
 
         if (!loading && usuario?.id) {
-            console.log(usuario)
             const fetchTasks = async () => {
-
-                const data = await obtenerTasks(usuario.id);
-                setTasks(data);
+                const directTasks = await obtenerTasks(usuario.id);
+                const groupTasks = await obtenerTareasDeGrupos(usuario.id);
+                setTasks([...(directTasks || []), ...(groupTasks || [])]);
             };
             fetchTasks();
         }

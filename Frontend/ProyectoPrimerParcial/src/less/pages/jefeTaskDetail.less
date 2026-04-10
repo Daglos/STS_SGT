@@ -1,0 +1,73 @@
+ .jefe-task-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.jefe-task-detail .tasks-container .jefe{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  max-width: none;
+  justify-content: space-between;
+}
+
+.jefe-task-detail .tasks-section .jefe{
+  width: 100%;
+  padding: 10px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+}
+
+.jefe-task-detail .tasks-section h2 {
+  grid-column: 1 / -1;
+  font-size: 24px;
+  text-align: left;
+  margin-bottom: 0;
+}
+
+.jefe-task-detail .tasks-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 15px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 30%;
+  max-width: 350px;
+}
+
+.jefe-task-detail .tasks-subsection h3 {
+  margin: 0;
+  font-size: 18px;
+  color: white;
+  font-weight: 700;
+}
+
+.jefe-task-detail .task-card {
+  min-width: 0;
+  margin-bottom: 12px;
+}
+
+.jefe-task-detail .task-card:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+  .jefe-task-detail .tasks-section {
+    gap: 16px;
+  }
+
+  .jefe-task-detail .tasks-subsection {
+    flex: 1 1 100%;
+  }
+}

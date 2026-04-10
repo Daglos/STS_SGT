@@ -145,19 +145,32 @@ const actualizarTask = async (req, res) => {
 const actualizarState = async (req, res) => {
   try {
     const { id } = req.query;
-    const { estado } = req.body || {};
+    const { estado, groupId } = req.body || {};
 
-    const actualizada = await taskService.actualizarTareaPorId(
-      id,
-      { estado },
-      ['estado']
-    );
+    try {
+      const actualizada = await taskService.actualizarTareaPorId(
+        id,
+        { estado },
+        ['estado']
+      );
 
-    return res.status(200).json({
-      success: true,
-      message: 'Estado actualizado correctamente',
-      data: actualizada,
-    });
+      return res.status(200).json({
+        success: true,
+        message: 'Estado actualizado correctamente',
+        data: actualizada,
+      });
+    } catch (error) {
+      try {
+        const actualizadaGroup = await taskService.actualizarTareaGrupalPorId(id, { estado });
+        return res.status(200).json({
+          success: true,
+          message: 'Estado actualizado correctamente en tarea grupal',
+          data: actualizadaGroup,
+        });
+      } catch (groupError) {
+        throw error;
+      }
+    }
   } catch (error) {
     console.error('Error al actualizar el estado:', error);
     return manejarError(res, error, 'Error al actualizar el estado');

@@ -13,6 +13,13 @@ try {
   const userRoute = require('./routes/userRoute')
   const taskRoute = require('./routes/taskRoute')
   const logginRoute = require('./routes/loginRoute')
+
+   // ---------- NUEVO: ruta de grupos de tareas ----------
+  const taskGroupRoute = require('./routes/taskGroupRoute')
+
+  // ---------- NUEVO: ruta de grupos de empleados ----------
+  const groupRoute = require('./routes/groupRoute');
+
   console.log('Routes loaded successfully')
 
   /**
@@ -40,10 +47,15 @@ try {
   /**
    * Registrar las rutas de los diferentes módulos con sus respectivos prefijos
    */
-  app.use('/rol',rolRoute)
-  app.use('/user',userRoute)
-  app.use('/task',taskRoute)
-  app.use('/login',logginRoute)
+  app.use('/rol', rolRoute)
+  app.use('/user', userRoute)
+  app.use('/task', taskRoute)
+  app.use('/login', logginRoute)
+
+  // ---------- NUEVO: registrar ruta de grupos de tareas ----------
+  app.use('/task-groups', taskGroupRoute)
+
+  app.use('/grupo', groupRoute);
 
   /**
    * Iniciar el servidor en el puerto especificado
@@ -51,6 +63,7 @@ try {
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
+
 } catch (error) {
   console.error('Error loading application:', error.message)
   console.error(error)
